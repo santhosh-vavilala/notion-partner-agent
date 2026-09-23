@@ -91,7 +91,7 @@ OPENAI_MODEL=gpt-5
 ## 3. Authorize the real Notion MCP
 
 ```bash
-python scripts/notion_auth.py
+python -m scripts.notion_auth
 ```
 
 The script prints an authorization URL. Open it, sign in to Notion, approve access, then paste the **full callback URL from the browser address bar** into the terminal. The localhost callback page itself does not need to render; the script only needs the authorization `code/state` in the redirected URL.
@@ -106,6 +106,10 @@ uvicorn app.main:app --reload
 or 
 
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8001
+
+or 
+
+python -m uvicorn app.main:app --reload --port 8001
 ```
 
 Swagger: `http://localhost:8000/docs`

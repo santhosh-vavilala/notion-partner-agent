@@ -44,15 +44,28 @@ class LLMService:
 
     async def select_tools(self, message: str, route: RouteDecision, tools: list[dict]) -> list[dict]:
         compact = [{"name":t["name"],"description":t.get("description",""),"inputSchema":t.get("inputSchema",{})} for t in tools]
-        schema = {"type":"object","properties":{"calls":{"type":"array","maxItems":4,"items":{"type":"object","properties":{"name":{"type":"string"},"arguments":{"type":"object","additionalProperties":True}},"required":["name","arguments"],"additionalProperties":False}}},"required":["calls"],"additionalProperties":False}
+        # Strict Structured Outputs cannot contain an open-ended object schema:
+        # every object must set additionalProperties=false. MCP argument shapes
+        # are discovered at runtime, so carry each argument object as JSON text
+        # and decode it only after the structured response has been validated.
+        schema = {"type":"object","properties":{"calls":{"type":"array","maxItems":4,"items":{"type":"object","properties":{"name":{"type":"string"},"arguments_json":{"type":"string"}},"required":["name","arguments_json"],"additionalProperties":False}}},"required":["calls"],"additionalProperties":False}
         response = await self.client.responses.create(
             model=self.model,
             instructions=("Choose the minimum MCP tool calls needed. Only choose names from AVAILABLE_TOOLS. "
                           "Never choose a write tool for a read request. If a fetch needs an ID that search can discover, choose search first only; the graph can plan another round after results."),
-            input=f"USER_REQUEST:\n{message}\n\nROUTE:\n{route.model_dump_json()}\n\nAVAILABLE_TOOLS:\n{json.dumps(compact)}",
+            input=(f"USER_REQUEST:\n{message}\n\nROUTE:\n{route.model_dump_json()}\n\nAVAILABLE_TOOLS:\n{json.dumps(compact)}\n\n"
+                   "For every call, put the tool arguments object in arguments_json as valid JSON text."),
             text={"format":{"type":"json_schema","name":"tool_plan","strict":True,"schema":schema}},
         )
-        return json.loads(response.output_text)["calls"]
+        calls = []
+        for call in json.loads(response.output_text)["calls"]:
+            try:
+                arguments = json.loads(call["arguments_json"])
+            except (TypeError, json.JSONDecodeError):
+                continue
+            if isinstance(arguments, dict):
+                calls.append({"name": call["name"], "arguments": arguments})
+        return calls
 
     async def answer(self, message: str, route: RouteDecision, results: list[dict]) -> str:
         response = await self.client.responses.create(
