@@ -12,4 +12,7 @@ class AgentService:
         route=result.get("route")
         return ChatResponse(answer=result.get("answer","No response generated."),thread_id=req.thread_id,
             intent=route.intent if route else Intent.GENERAL, partner=route.partner if route else "notion",
-            tool_calls=result.get("tool_calls",[]),approval_required=result.get("approval_required",False),trace_id=trace_id)
+            tool_calls=result.get("tool_calls",[]),
+            planned_tools=result.get("selected_tools",[]) if result.get("approval_required") else [],
+            tool_results=result.get("tool_results",[]),
+            approval_required=result.get("approval_required",False),trace_id=trace_id)

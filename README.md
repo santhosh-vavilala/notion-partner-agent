@@ -106,6 +106,8 @@ uvicorn app.main:app --reload
 
 Swagger: `http://localhost:8000/docs`
 
+Browser workspace: `http://localhost:8000/` (chat, connection status, write approval, and request details).
+
 Health: `GET http://localhost:8000/health`
 
 ## 5. Try real requests

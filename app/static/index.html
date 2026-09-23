@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notion Partner | Workspace</title>
+  <link rel="icon" href="/static/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><img src="/static/mark.svg" width="34" height="34" alt=""><span>Notion Partner<small>WORKSPACE AGENT</small></span></a>
+    <button id="new-chat" class="new-chat"><i data-lucide="plus"></i>New conversation</button>
+    <div class="section-label">WORKSPACE</div>
+    <div class="nav-current"><i data-lucide="messages-square"></i>Conversation<span class="live-dot"></span></div>
+    <a class="nav-link" href="/docs" target="_blank" rel="noopener"><i data-lucide="braces"></i>API reference<i data-lucide="arrow-up-right"></i></a>
+    <section class="connections">
+      <div class="section-heading"><span class="section-label">CONNECTIONS</span><button id="refresh" class="icon-button" title="Refresh connection status" aria-label="Refresh connection status"><i data-lucide="refresh-cw"></i></button></div>
+      <div class="connection"><span>Local API</span><span id="api-status" class="status">Checking</span></div>
+      <div class="connection"><span>OpenAI key</span><span id="openai-status" class="status">Checking</span></div>
+      <div class="connection"><span>Notion token</span><span id="notion-status" class="status">Checking</span></div>
+      <p class="subtle" id="checked-at">Awaiting server</p>
+    </section>
+    <div class="sidebar-bottom"><label for="user-id">Operator ID</label><input id="user-id" value="local-user" maxlength="128" autocomplete="off"><div class="local-label"><span class="live-dot"></span><span id="environment">Local workspace</span></div></div>
+  </aside>
+  <main>
+    <header class="topbar"><div><span class="breadcrumb">Workspace /</span><h1>Conversation</h1></div><span class="model-pill"><i data-lucide="sparkles"></i><span id="model">Loading model</span></span></header>
+    <div class="workspace">
+      <section class="chat-pane" aria-label="Conversation">
+        <div id="setup-alert" class="notice" hidden></div>
+        <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions">
+          <div id="welcome" class="welcome">
+            <div class="welcome-mark"><img src="/static/mark.svg" width="48" height="48" alt="Notion Partner"></div>
+            <div class="eyebrow">YOUR NOTION WORKSPACE</div>
+            <h2>What are we working on?</h2>
+            <p>Find an answer. Bring context together. Move work forward.</p>
+            <div class="suggestions">
+              <button data-prompt="Search my Notion workspace for Partner Agent architecture and summarize what you find."><i data-lucide="search"></i><span>Find workspace knowledge<small>Partner Agent architecture</small></span><i data-lucide="arrow-up-right"></i></button>
+              <button data-prompt="Search my Notion workspace for onboarding documentation and summarize the key steps."><i data-lucide="book-open"></i><span>Get up to speed<small>Onboarding documentation</small></span><i data-lucide="arrow-up-right"></i></button>
+              <button data-prompt="Create a Notion page called Partner Agent Notes with a short explanation of MCP."><i data-lucide="file-plus-2"></i><span>Start a new page<small>Partner Agent Notes</small></span><i data-lucide="arrow-up-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="composer-wrap">
+          <div id="approval" class="approval" hidden><div class="approval-title"><i data-lucide="shield-check"></i>Notion write approval</div><p id="approval-request"></p><details><summary>Proposed tool calls</summary><pre id="approval-tools"></pre></details><p class="subtle">Approval resubmits this request. The agent will plan the actions again.</p><div class="approval-actions"><button id="decline" class="secondary">Decline</button><button id="approve" class="primary"><i data-lucide="check"></i>Approve request</button></div></div>
+          <form id="chat-form"><label class="sr-only" for="message">Message</label><textarea id="message" rows="3" maxlength="12000" placeholder="Ask about your Notion workspace..."></textarea><div class="composer-footer"><span><i data-lucide="link-2"></i>Notion MCP</span><div><span id="counter">0 / 12,000</span><button id="send" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled><i data-lucide="arrow-up"></i></button></div></div></form>
+          <div class="composer-caption"><span id="write-policy">Checking write policy</span><span id="request-state" role="status">Ready</span></div>
+        </div>
+      </section>
+      <aside class="inspector" aria-label="Request details">
+        <div class="inspector-title"><i data-lucide="activity"></i><h2>Request details</h2></div>
+        <div class="section-label">LATEST REQUEST</div>
+        <dl class="facts"><div><dt>Status</dt><dd id="detail-status">No requests yet</dd></div><div><dt>Intent</dt><dd id="detail-intent">--</dd></div><div><dt>Partner</dt><dd id="detail-partner">Notion</dd></div><div><dt>Elapsed</dt><dd id="detail-duration">--</dd></div><div><dt>Tool calls</dt><dd id="detail-count">--</dd></div></dl>
+        <label class="section-label" for="thread-id">THREAD ID</label><div class="copy-row"><input id="thread-id" readonly><button class="icon-button" id="copy-thread" title="Copy thread ID" aria-label="Copy thread ID"><i data-lucide="copy"></i></button></div>
+        <div class="section-label spaced">TRACE ID</div><p id="trace-id" class="mono muted">Awaiting request</p>
+        <div class="inspector-section"><h3>Tool activity</h3><div id="tool-activity" class="subtle">No tool activity yet.</div></div>
+        <details class="raw-details"><summary>Response JSON</summary><pre id="response-json">No response yet.</pre></details>
+        <div class="inspector-section"><h3>Runtime</h3><dl class="facts"><div><dt>Write approval</dt><dd id="runtime-approval">--</dd></div><div><dt>Tool call limit</dt><dd id="runtime-limit">--</dd></div><div><dt>MCP timeout</dt><dd id="runtime-timeout">--</dd></div></dl><div class="section-label">MCP ENDPOINT</div><p id="endpoint" class="mono muted">--</p></div>
+        <p class="subtle">Credential presence is checked locally. Live access is verified when a request runs.</p>
+      </aside>
+    </div>
+  </main>
+  <div id="toast" role="status" hidden></div>
+</body>
+</html>

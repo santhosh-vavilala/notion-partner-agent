@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notion Partner Agent — Code Explained</title>
+<style>
+:root{--bg:#f6f7fb;--paper:#fff;--ink:#172033;--muted:#667085;--line:#dfe3ea;--nav:#101828;--blue:#3468f5;--blue2:#e9efff;--green:#067647;--green2:#ecfdf3;--amber:#b54708;--amber2:#fffaeb;--red:#b42318;--red2:#fef3f2;--code:#111827;--shadow:0 12px 35px #10182814;--r:16px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.65 Inter,system-ui,"Segoe UI",sans-serif}.layout{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100vh}.side{position:sticky;top:0;height:100vh;overflow:auto;background:var(--nav);color:#fff;padding:27px 21px}.brand{display:flex;gap:11px;align-items:center;margin-bottom:24px}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#fff;color:#101828;font-weight:900;font-size:20px}.brand b,.brand small{display:block}.brand small{color:#98a2b3;font-size:10px;letter-spacing:.1em}.search{width:100%;padding:10px 11px;border:1px solid #344054;border-radius:9px;background:#1d2939;color:#fff}.nav-title{margin:22px 8px 6px;color:#667085;font-size:10px;font-weight:800;letter-spacing:.12em}.side a{display:block;padding:6px 8px;color:#d0d5dd;text-decoration:none;border-radius:7px;font-size:13px}.side a:hover{background:#1d2939;color:#fff}.verified{margin-top:25px;padding:11px;border:1px solid #344054;border-radius:9px;color:#98a2b3;font-size:12px}.main{min-width:0;padding:50px clamp(22px,5vw,74px) 90px}.content{max-width:1100px;margin:auto}.hero{padding:44px;border-radius:22px;color:#fff;background:radial-gradient(circle at 92% 0,#557cff 0,transparent 33%),linear-gradient(135deg,#101828,#253b70);box-shadow:var(--shadow)}.hero h1{font-size:clamp(34px,5vw,55px);line-height:1.05;letter-spacing:-.045em;margin:10px 0 17px}.hero p{max-width:760px;color:#d0d5dd;font-size:18px}.eyebrow,.label{text-transform:uppercase;letter-spacing:.11em;font-weight:800;font-size:11px}.eyebrow{color:#a9c0ff}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}.chip{padding:5px 10px;border:1px solid #475467;border-radius:99px;color:#eaecf0;font-size:12px}section{margin-top:52px}h2{font-size:30px;letter-spacing:-.025em;margin:0 0 10px}h3{font-size:20px;margin:25px 0 9px}h4{font-size:16px;margin:0 0 5px}p{margin:7px 0 13px}.lead{font-size:17px;color:#475467;max-width:850px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card,.fn,.callout,.step{background:#fff;border:1px solid var(--line);border-radius:var(--r)}.card{padding:22px}.card p{color:#475467}.badge{display:inline-block;padding:3px 8px;border-radius:99px;background:var(--blue2);color:var(--blue);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.green{background:var(--green2);color:var(--green)}.amber{background:var(--amber2);color:var(--amber)}.red{background:var(--red2);color:var(--red)}code{font:13px ui-monospace,Consolas,monospace;background:#eef1f6;border-radius:5px;padding:2px 5px;color:#344054}pre,.tree{margin:13px 0;background:var(--code);color:#d1e5ff;border-radius:12px;padding:17px;overflow:auto;font:13px/1.65 ui-monospace,Consolas,monospace}.flow{display:flex;align-items:stretch;gap:6px;overflow:auto;padding:17px 3px}.node{flex:0 0 130px;min-height:84px;background:#fff;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:11px;padding:11px;text-align:center}.node b,.node span{display:block}.node span{color:var(--muted);font-size:11px;line-height:1.35;margin-top:5px}.node.ext{border-top-color:#12b76a}.node.guard{border-top-color:#d92d20}.arrow{align-self:center;color:#98a2b3;font-size:20px}.callout{padding:18px 21px;border-left:5px solid var(--blue);margin:17px 0}.callout.warn{border-left-color:#f79009;background:#fffcf5}.callout.danger{border-left-color:#d92d20;background:#fffbfa}.callout strong{display:block}.steps{counter-reset:n;display:grid;gap:11px}.step{position:relative;padding:17px 19px 17px 64px}.step:before{counter-increment:n;content:counter(n);position:absolute;left:18px;top:17px;width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:800}.step p{color:#475467;margin-bottom:0}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;background:#fff}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}th{background:#f9fafb;color:#475467;font-size:11px;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border:0}td:first-child{font-family:ui-monospace,Consolas,monospace;color:#344054}.fn-group{margin-top:32px;padding-top:9px;border-top:1px solid var(--line)}.file{font:13px ui-monospace,Consolas,monospace;color:#667085}.fn{padding:20px;margin:12px 0}.fn-head{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.fn-head h4{font-family:ui-monospace,Consolas,monospace}.sig{color:var(--blue);font:12px ui-monospace,Consolas,monospace}.fn dl{display:grid;grid-template-columns:95px 1fr;gap:4px 11px;margin:12px 0 0}.fn dt{font-size:11px;font-weight:800;text-transform:uppercase;color:#667085}.fn dd{margin:0;color:#475467}.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.key{padding:11px;background:#fff;border:1px solid var(--line);border-radius:9px}.key b{font:12px ui-monospace,Consolas,monospace;color:var(--blue)}.key span{display:block;color:#667085;font-size:11px}.hidden{display:none!important}.footer{margin-top:55px;padding-top:22px;border-top:1px solid var(--line);color:#667085}@media(max-width:900px){.layout{display:block}.side{position:relative;height:auto}.main{padding-top:25px}.grid.three{grid-template-columns:1fr 1fr}.keys{grid-template-columns:1fr 1fr}}@media(max-width:600px){.hero{padding:28px 23px}.grid,.grid.three{grid-template-columns:1fr}.fn dl{grid-template-columns:1fr}}@media print{.side{display:none}.layout{display:block}.main{padding:0}.card,.fn,.step{break-inside:avoid}}
+</style>
+</head>
+<body><div class="layout">
+<aside class="side">
+ <div class="brand"><div class="mark">N</div><div><b>Code Explained</b><small>NOTION PARTNER AGENT</small></div></div>
+ <input id="search" class="search" type="search" placeholder="Filter functions…" aria-label="Filter function catalog">
+ <div class="nav-title">UNDERSTAND</div>
+ <a href="#overview">1. Mental model</a><a href="#structure">2. Repository map</a><a href="#flow">3. Request flow</a><a href="#scenarios">4. Three paths</a>
+ <div class="nav-title">DEEP DIVE</div>
+ <a href="#state">State & contracts</a><a href="#functions">Python functions</a><a href="#frontend">Browser functions</a><a href="#concepts">Core concepts</a>
+ <div class="nav-title">ENGINEERING</div>
+ <a href="#guarantees">Guarantees</a><a href="#limitations">Limitations</a><a href="#tests">Tests</a><a href="#run">Run & debug</a>
+ <div class="verified">Source-accurate guide.<br><b style="color:#fff">8 tests passed</b> in the project virtual environment.</div>
+</aside>
+<main class="main" id="top"><div class="content">
+<header class="hero"><div class="eyebrow">Detailed repository walkthrough</div><h1>A governed AI bridge to Notion</h1><p>The application turns natural-language requests into controlled Notion operations. The model understands and proposes; normal application code routes, approves, executes, and validates.</p><div class="chips"><span class="chip">FastAPI</span><span class="chip">LangGraph</span><span class="chip">OpenAI Responses</span><span class="chip">MCP</span><span class="chip">OAuth 2.0</span><span class="chip">Pydantic</span></div></header>
+
+<section id="overview"><h2>1. The mental model</h2><p class="lead">This is a coordinator around an LLM, not a model with unrestricted workspace access. Fuzzy language understanding and deterministic control are deliberately separated.</p>
+<div class="grid three"><article class="card"><span class="badge">OpenAI</span><h3>Brain</h3><p>Classifies intent, selects from real tools, and turns raw results into a readable answer.</p></article><article class="card"><span class="badge amber">LangGraph</span><h3>Traffic controller</h3><p>Owns state transitions, branching, checkpointing, limits, and the approval stop.</p></article><article class="card"><span class="badge green">Notion MCP</span><h3>Hands</h3><p>Advertises live capabilities and performs actual reads or writes under OAuth.</p></article></div>
+<div class="callout"><strong>Central design idea</strong>The LLM may propose an action, but it never directly calls Notion. Code filters its proposal against discovered tools, limits calls, checks write approval, and only then invokes MCP.</div></section>
+
+<section id="structure"><h2>2. Repository map</h2><pre class="tree">app/
+├── main.py                    # FastAPI app + static UI
+├── api/routes.py              # HTTP endpoints
+├── services/agent_service.py # HTTP ↔ graph adapter
+├── agent/state.py             # shared workflow state
+├── agent/graph.py             # nodes, edges, safety gates
+├── llm/openai_client.py       # classify, plan, answer
+├── mcp/
+│   ├── notion_client.py       # discovery + invocation
+│   ├── oauth_provider.py      # Notion compatibility fix
+│   └── oauth_storage.py       # local credential files
+├── models/schemas.py          # validated contracts
+└── static/                    # browser workspace
+scripts/notion_auth.py         # interactive OAuth bootstrap
+tests/                         # unit/API contract tests</pre>
+<div class="callout warn"><strong>Why these layers matter</strong>Each isolates a reason to change: HTTP behavior, workflow, prompts, partner protocol, credentials, or presentation. Replacing Notion mainly affects the partner/MCP layer and route vocabulary.</div></section>
+
+<section id="flow"><h2>3. End-to-end flow</h2><div class="flow">
+<div class="node"><b>Browser</b><span>POST /v1/chat</span></div><div class="arrow">→</div><div class="node"><b>FastAPI</b><span>validate request</span></div><div class="arrow">→</div><div class="node"><b>Service</b><span>trace + invoke</span></div><div class="arrow">→</div><div class="node"><b>Classify</b><span>intent and risk</span></div><div class="arrow">→</div><div class="node ext"><b>Discover</b><span>MCP tools/list</span></div><div class="arrow">→</div><div class="node"><b>Plan</b><span>choose tools</span></div><div class="arrow">→</div><div class="node guard"><b>Approval</b><span>block writes</span></div><div class="arrow">→</div><div class="node ext"><b>Execute</b><span>MCP tools/call</span></div><div class="arrow">→</div><div class="node"><b>Synthesize</b><span>grounded answer</span></div></div>
+<div class="steps">
+<article class="step"><h4>Validate</h4><p>Pydantic bounds message and ID lengths and defaults write approval to false.</p></article>
+<article class="step"><h4>Create context</h4><p>The service generates a trace UUID and uses <code>thread_id</code> as the LangGraph checkpoint key.</p></article>
+<article class="step"><h4>Classify</h4><p>A strict structured model call returns intent, partner, risk, objective, and whether Notion is needed.</p></article>
+<article class="step"><h4>Discover and plan</h4><p>Notion supplies its live catalog. The model chooses calls; code removes unknown names and applies the configured limit.</p></article>
+<article class="step"><h4>Govern</h4><p>Write-looking tools stop before execution unless the request explicitly carries approval.</p></article>
+<article class="step"><h4>Execute and ground</h4><p>Calls run sequentially, results are normalized, and a final model call explains only those results.</p></article>
+</div></section>
+
+<section id="scenarios"><h2>4. Three execution paths</h2><div class="grid three">
+<article class="card"><span class="badge">General</span><h3>“Hello”</h3><p><code>classify → general → END</code></p><p>No Notion connection is made.</p></article>
+<article class="card"><span class="badge green">Read</span><h3>“Find the policy”</h3><p><code>classify → discover → plan → gate → execute → synthesize</code></p></article>
+<article class="card"><span class="badge red">Write</span><h3>“Create a page”</h3><p>First run stops at approval. Approval resubmits with <code>approve_write:true</code>, so classification and planning happen again before execution.</p></article>
+</div></section>
+
+<section id="state"><h2>5. State and contracts</h2><p class="lead"><code>AgentState</code> is a <code>TypedDict(total=False)</code>. Nodes progressively add keys; the type helps developers and tools but does not validate data at runtime.</p>
+<div class="keys"><div class="key"><b>message</b><span>current request</span></div><div class="key"><b>user_id</b><span>operator metadata</span></div><div class="key"><b>thread_id</b><span>checkpoint key</span></div><div class="key"><b>approve_write</b><span>consent flag</span></div><div class="key"><b>route</b><span>intent decision</span></div><div class="key"><b>tools</b><span>live catalog</span></div><div class="key"><b>selected_tools</b><span>filtered plan</span></div><div class="key"><b>tool_calls</b><span>actual attempts</span></div><div class="key"><b>tool_results</b><span>MCP output</span></div><div class="key"><b>answer</b><span>user text</span></div><div class="key"><b>approval_required</b><span>gate result</span></div><div class="key"><b>error</b><span>reserved/unused</span></div></div>
+<h3>Pydantic domain models</h3><div class="table-wrap"><table><thead><tr><th>Model</th><th>Purpose</th><th>Significance</th></tr></thead><tbody>
+<tr><td>Intent</td><td>Seven allowed request categories.</td><td>Prevents arbitrary labels downstream.</td></tr><tr><td>Risk</td><td>Read/write distinction.</td><td>Rechecked during execution.</td></tr><tr><td>RouteDecision</td><td>Validated classifier output.</td><td>Bridges probabilistic output to code.</td></tr><tr><td>ChatRequest</td><td>Public input.</td><td>Bounds text/IDs; consent defaults false.</td></tr><tr><td>ChatResponse</td><td>Public output.</td><td>Answer plus trace and execution evidence.</td></tr><tr><td>HealthResponse</td><td>Safe readiness view.</td><td>Reports presence, never secrets.</td></tr>
+</tbody></table></div></section>
+
+<section id="functions"><h2>6. Python function catalog</h2><p class="lead">Every meaningful Python function and method is explained here. The sidebar search filters these entries.</p>
+<div class="fn-group"><div class="file">app/main.py + app/core/config.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>workspace()</h4><span class="sig">async → FileResponse</span></div><dl><dt>Does</dt><dd>Serves <code>static/index.html</code> at <code>GET /</code>.</dd><dt>Why</dt><dd>One FastAPI process hosts API and no-build UI.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>get_settings()</h4><span class="sig">cached → Settings</span></div><dl><dt>Does</dt><dd>Loads environment and <code>.env</code> into typed settings.</dd><dt>Why</dt><dd><code>@lru_cache</code> creates a stable singleton rather than reparsing configuration.</dd><dt>Note</dt><dd>The API key is required at settings construction; other fields have defaults.</dd></dl></article>
+<div class="callout"><strong>Import-time setup</strong>Logging, the FastAPI object, router, and static mount are configured once when <code>app.main</code> imports.</div></div>
+
+<div class="fn-group"><div class="file">app/api/routes.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>health()</h4><span class="sig">GET /health</span></div><dl><dt>Does</dt><dd>Returns “ok” plus API-key and token-file presence booleans.</dd><dt>Boundary</dt><dd>It does not make live OpenAI or Notion calls.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>status()</h4><span class="sig">GET /v1/status</span></div><dl><dt>Does</dt><dd>Extends health with safe model, environment, endpoint, limit, timeout, and policy settings used by the UI.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>chat(req)</h4><span class="sig">POST /v1/chat</span></div><dl><dt>Does</dt><dd>Delegates to the service and maps dependency exceptions to HTTP 502.</dd><dt>Note</dt><dd>The current error detail includes exception text, useful locally but too revealing for public deployment.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">app/services/agent_service.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>AgentService.chat(req)</h4><span class="sig">async → ChatResponse</span></div><dl><dt>Does</dt><dd>Creates a trace UUID, builds graph input, invokes the shared compiled graph, and projects internal state into the API model.</dd><dt>Config</dt><dd><code>thread_id</code> controls checkpointing; trace/user IDs are metadata.</dd><dt>Nuance</dt><dd>Proposed tools are exposed only when approval is pending; executed calls/results are exposed after execution.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">app/agent/graph.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>classify(state)</h4><span class="sig">async node</span></div><dl><dt>Does</dt><dd>Classifies <code>message</code> and resets calls, results, and approval state for this invocation.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>general_or_mcp(state)</h4><span class="sig">router</span></div><dl><dt>Does</dt><dd>Returns <code>discover_tools</code> or <code>general</code> from <code>route.requires_mcp</code>.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>general(state)</h4><span class="sig">async node</span></div><dl><dt>Does</dt><dd>Gets a plain model answer when workspace context is unnecessary.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>discover_tools(state)</h4><span class="sig">async node</span></div><dl><dt>Does</dt><dd>Fetches the live Notion MCP tool catalog.</dd><dt>Why</dt><dd>Capabilities and input schemas need not be hard-coded.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>plan_tools(state)</h4><span class="sig">async node</span></div><dl><dt>Does</dt><dd>Asks the model for calls, removes undiscovered names, and truncates to the configured maximum.</dd><dt>Boundary</dt><dd>Arguments remain model-produced; the MCP server validates them.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>approval_gate(state)</h4><span class="badge red">safety</span></div><dl><dt>Does</dt><dd>Finds write-looking selected tools. When policy is on and consent is absent, sets an explanatory answer and approval flag.</dd><dt>Guarantee</dt><dd>That graph path ends before any tool call.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>after_approval(state)</h4><span class="sig">router</span></div><dl><dt>Does</dt><dd>Converts gate state to either LangGraph <code>END</code> or <code>execute_tools</code>.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>execute_tools(state)</h4><span class="badge red">side effects</span></div><dl><dt>Does</dt><dd>Runs selected calls sequentially and records attempted calls/results.</dd><dt>Defense</dt><dd>Skips a write-looking tool when the classified route is READ.</dd><dt>Failure</dt><dd>One raised exception aborts the node; there is no per-call recovery.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>synthesize(state)</h4><span class="sig">async node</span></div><dl><dt>Does</dt><dd>Turns route plus MCP results into the final user-facing answer.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>build_graph(checkpointer=None)</h4><span class="sig">→ compiled graph</span></div><dl><dt>Does</dt><dd>Registers nodes/edges and compiles with the injected checkpointer or <code>MemorySaver</code>.</dd><dt>Seam</dt><dd>A durable production checkpointer can be injected here.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">app/llm/openai_client.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>LLMService.__init__()</h4></div><dl><dt>Does</dt><dd>Captures model name and defers client construction.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>LLMService.client</h4><span class="sig">property</span></div><dl><dt>Does</dt><dd>Checks the key, lazily creates <code>AsyncOpenAI</code>, and caches it.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>classify(message)</h4><span class="sig">async → RouteDecision</span></div><dl><dt>Does</dt><dd>Requests strict JSON-schema output and validates it again with Pydantic.</dd><dt>Concept</dt><dd>Free-form language becomes a small, machine-safe decision object.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>select_tools(message, route, tools)</h4><span class="sig">async → list</span></div><dl><dt>Does</dt><dd>Sends compact live schemas and asks for up to four minimal call objects.</dd><dt>Nuance</dt><dd>The schema hard-codes four; the graph setting can further reduce that number.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>answer(message, route, results)</h4><span class="sig">async → str</span></div><dl><dt>Does</dt><dd>Supplies up to 50,000 serialized result characters with instructions against unsupported claims.</dd><dt>Boundary</dt><dd>Prompt grounding reduces hallucination; it is not a formal proof.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>general_answer(message)</h4><span class="sig">async → str</span></div><dl><dt>Does</dt><dd>Makes a basic Responses API call for non-workspace conversation.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">app/mcp/oauth_storage.py + oauth_provider.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>FileTokenStorage.__init__(token_file)</h4></div><dl><dt>Does</dt><dd>Defines token and sibling client-registration paths.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>get_tokens() / get_client_info()</h4></div><dl><dt>Does</dt><dd>Reads and validates SDK models when files exist, otherwise returns <code>None</code>.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>set_tokens() / set_client_info()</h4></div><dl><dt>Does</dt><dd>Creates directories, writes JSON, and requests owner-only <code>0600</code> permissions.</dd><dt>Boundary</dt><dd>Local single-operator storage; not encrypted or keyed by <code>user_id</code>.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>_NotionOAuthContext.prepare_token_auth(data, headers)</h4><span class="badge amber">compatibility</span></div><dl><dt>Does</dt><dd>After SDK preparation, removes body client credentials when HTTP Basic authentication is already present.</dd><dt>Why</dt><dd>Notion rejects duplicate client authentication.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>NotionOAuthClientProvider.__init__()</h4></div><dl><dt>Does</dt><dd>Replaces the SDK context with the Notion-specific subclass while copying every dataclass field.</dd><dt>Why</dt><dd>Overrides one hook while preserving discovery, PKCE, refresh, and state.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">app/mcp/notion_client.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>_reauth_redirect() / _reauth_callback()</h4></div><dl><dt>Does</dt><dd>Always raise guidance to use the interactive script.</dd><dt>Why</dt><dd>An API worker must not print URLs and wait for terminal input during a request.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>NotionMCPClient.__init__()</h4></div><dl><dt>Does</dt><dd>Captures cached application settings.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>NotionMCPClient._oauth()</h4></div><dl><dt>Does</dt><dd>Builds OAuth metadata, file storage, redirect handlers, and the Notion-compatible provider.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>list_tools()</h4><span class="sig">async → list[dict]</span></div><dl><dt>Does</dt><dd>Opens authenticated HTTP and MCP contexts, initializes the session, calls <code>tools/list</code>, and normalizes tool objects.</dd><dt>Pattern</dt><dd>Nested async context managers guarantee cleanup.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>call_tool(name, arguments)</h4><span class="sig">async → dict</span></div><dl><dt>Does</dt><dd>Creates a new authenticated MCP session, invokes the tool, and serializes content to type/text objects plus <code>isError</code>.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>is_write_tool(name)</h4><span class="badge red">policy heuristic</span></div><dl><dt>Does</dt><dd>Checks lowercase names for create, update, delete, move, duplicate, comment, or append.</dd><dt>Risk</dt><dd>Substrings can miss or misclassify names. Production needs explicit reviewed metadata.</dd></dl></article></div>
+
+<div class="fn-group"><div class="file">scripts/notion_auth.py</div>
+<article class="fn searchable"><div class="fn-head"><h4>redirect(url)</h4></div><dl><dt>Does</dt><dd>Prints the discovered authorization URL.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>callback()</h4></div><dl><dt>Does</dt><dd>Reads the full redirected URL and extracts OAuth code/state.</dd><dt>Why</dt><dd>The callback page need not render; its query string contains the PKCE exchange data.</dd></dl></article>
+<article class="fn searchable"><div class="fn-head"><h4>main()</h4></div><dl><dt>Does</dt><dd>Runs the OAuth-enabled MCP session, lists tools as proof, and persists registration/tokens through storage.</dd></dl></article></div>
+</section>
+
+<section id="frontend"><h2>7. Browser function catalog</h2><p class="lead">The frontend is framework-free. Dynamic user/server content is written with <code>textContent</code> or JSON serialization, which avoids interpreting it as HTML.</p>
+<div class="table-wrap"><table><thead><tr><th>Function / handler</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>$(id)</td><td>Short <code>getElementById</code> helper.</td></tr><tr><td>icons()</td><td>Renders Lucide placeholders; optional chaining tolerates a missing global.</td></tr><tr><td>text(id,value)</td><td>Safely sets text.</td></tr><tr><td>toast(value)</td><td>Shows timed copy feedback.</td></tr><tr><td>status(...)</td><td>Updates connection label and good/bad class together.</td></tr>
+<tr><td>refreshStatus()</td><td>Fetches runtime status with a 10s timeout and displays exact setup guidance.</td></tr><tr><td>syncControls()</td><td>Derives disabled controls and character count from busy/approval/input state.</td></tr><tr><td>addMessage(...)</td><td>Builds safe message DOM, stamps time, scrolls, and returns the article.</td></tr><tr><td>scrollChat()</td><td>Shows newest content.</td></tr><tr><td>details(...)</td><td>Creates expandable JSON call/result entries.</td></tr>
+<tr><td>inspect(data)</td><td>Populates request details; shows proposed calls while blocked, actual calls otherwise.</td></tr><tr><td>sendRequest(...)</td><td>Main UI transaction: locks state, posts JSON, times work, handles approval/result/error, and always restores controls.</td></tr><tr><td>tick()</td><td>Inner timer based on monotonic <code>performance.now()</code>.</td></tr><tr><td>copyText(...)</td><td>Uses Clipboard API with failure feedback.</td></tr>
+<tr><td>form submit</td><td>Builds a fresh unapproved request.</td></tr><tr><td>keydown</td><td>Enter sends; Shift+Enter adds a line; IME composition is respected.</td></tr><tr><td>document click</td><td>Delegates suggestion buttons via <code>data-prompt</code>.</td></tr><tr><td>approve / decline</td><td>Approve resends saved payload; decline makes no server request.</td></tr><tr><td>new-chat</td><td>Creates a new thread UUID and resets conversation/inspector.</td></tr>
+</tbody></table></div><div class="callout warn"><strong>Client confirmation is UX; the server gate is security</strong>Callers can bypass the browser. Enforcement therefore belongs in <code>approval_gate</code>.</div></section>
+
+<section id="concepts"><h2>8. Concepts behind it</h2><div class="grid">
+<article class="card"><h3>Agent vs chatbot</h3><p>A chatbot maps text to text. This agent maps text through a state machine that discovers abilities, pauses for consent, causes side effects, and returns evidence.</p></article>
+<article class="card"><h3>Structured outputs</h3><p>JSON Schema restricts model shape; Pydantic validates it. Probabilistic interpretation becomes data that ordinary code can branch on.</p></article>
+<article class="card"><h3>MCP</h3><p>A standard handshake plus <code>tools/list</code> and <code>tools/call</code> lets the client plan against live partner capabilities.</p></article>
+<article class="card"><h3>OAuth + PKCE</h3><p>The operator authorizes without giving a password. Authorization code and verifier yield renewable scoped tokens.</p></article>
+<article class="card"><h3>Human in the loop</h3><p>A potential side effect stops at a control point. Consent is explicit input, never inferred from model confidence.</p></article>
+<article class="card"><h3>Defense in depth</h3><p>The prompt prohibits writes on reads, the gate detects writes, and execution checks risk again.</p></article>
+<article class="card"><h3>Grounding</h3><p>Workspace answers are generated after retrieval with MCP results included in the final model request.</p></article>
+<article class="card"><h3>Async I/O</h3><p><code>async/await</code> lets the server handle other work while OpenAI, Notion, or HTTP is waiting.</p></article></div></section>
+
+<section id="guarantees"><h2>9. Guarantees and boundaries</h2><div class="table-wrap"><table><thead><tr><th>Mechanism</th><th>Guarantees</th><th>Does not guarantee</th></tr></thead><tbody>
+<tr><td>Strict route schema</td><td>Allowed fields and enums.</td><td>Correct semantic judgment.</td></tr><tr><td>Name filter</td><td>Invented tool names are removed.</td><td>Safe or wise arguments.</td></tr><tr><td>Call cap</td><td>Bounded calls per request.</td><td>Global cost/rate limits.</td></tr><tr><td>Approval gate</td><td>Detected writes stop without consent.</td><td>Detection of every write name.</td></tr><tr><td>OAuth</td><td>Calls use saved operator authorization.</td><td>Per-user token isolation.</td></tr><tr><td>Grounding prompt</td><td>The model is instructed to use results.</td><td>Zero hallucination.</td></tr><tr><td>MemorySaver</td><td>State during one process lifetime.</td><td>Restart/replica persistence or chat history in prompts.</td></tr>
+</tbody></table></div></section>
+
+<section id="limitations"><h2>10. Important limitations</h2><div class="grid">
+<article class="card"><span class="badge red">Security</span><h3>Single operator</h3><p><code>user_id</code> is metadata, not credential selection. Multi-user deployment needs authentication and encrypted per-user storage.</p></article>
+<article class="card"><span class="badge red">Policy</span><h3>Name heuristic</h3><p>Replace substrings with an allowlist carrying explicit risk, scopes, and argument policy.</p></article>
+<article class="card"><span class="badge amber">Planning</span><h3>Single round</h3><p>The prompt mentions search-first, but the graph never replans after search. Search→fetch needs a bounded loop.</p></article>
+<article class="card"><span class="badge amber">Memory</span><h3>No chat history</h3><p>Checkpointed state exists, but model prompts receive only the current message. Add a message reducer and bounded history.</p></article>
+<article class="card"><span class="badge amber">Reliability</span><h3>Ambiguous retries</h3><p>A timeout may happen after a write commits. Add idempotency/reconciliation and durable audit records.</p></article>
+<article class="card"><span class="badge amber">Persistence</span><h3>In memory only</h3><p><code>DATABASE_URL</code> is unused. Replicas need database checkpoints.</p></article>
+<article class="card"><span class="badge amber">Errors</span><h3>Details exposed</h3><p>Sanitize public 502 messages and log detail under the trace ID.</p></article>
+<article class="card"><span class="badge amber">Container</span><h3>Read-only secrets</h3><p>Compose mounts secrets read-only while token refresh may rewrite them. Use writable secure/external storage.</p></article>
+</div></section>
+
+<section id="tests"><h2>11. Tests and evidence</h2><div class="table-wrap"><table><thead><tr><th>Test area</th><th>What it proves</th><th>Not covered</th></tr></thead><tbody>
+<tr><td>Request model</td><td>Approval defaults false.</td><td>All validation edges.</td></tr><tr><td>OAuth provider</td><td>Basic/post/public client auth placement, PKCE verifier, refresh token.</td><td>Live Notion OAuth.</td></tr><tr><td>Workspace/status</td><td>UI/assets serve and secrets are not exposed.</td><td>Browser behavior/layout.</td></tr><tr><td>Response mapping</td><td>Proposed vs actual details and trace are correct.</td><td>Graph is mocked.</td></tr><tr><td>Write guard</td><td>Four representative names classify correctly.</td><td>Whole live catalog.</td></tr>
+</tbody></table></div><div class="callout"><strong>Verified command</strong><code>.\.venv\Scripts\python.exe -m pytest -q</code> → <b>8 passed</b>, with one third-party AnyIO deprecation warning.</div></section>
+
+<section id="run"><h2>12. Run and debug</h2><div class="grid"><article class="card"><h3>Setup</h3><pre>python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+# Set OPENAI_API_KEY in .env</pre></article><article class="card"><h3>Authorize and start</h3><pre>python scripts/notion_auth.py
+uvicorn app.main:app --reload
+# UI:   http://localhost:8000/
+# Docs: http://localhost:8000/docs</pre></article></div>
+<h3>Debugging order</h3><ol><li>Check <code>/v1/status</code>.</li><li>Inspect response trace, intent, calls, and results.</li><li>Routing issue: inspect <code>classify</code>; wrong action: <code>plan_tools</code>; access issue: OAuth/MCP.</li><li>For writes, verify both route risk and <code>is_write_tool</code>.</li><li>Run tests through the project virtual environment.</li></ol></section>
+
+<footer class="footer">Standalone, source-accurate repository guide. No server or external assets are required to read this file.</footer>
+</div></main></div>
+<script>
+const search=document.getElementById('search'),items=[...document.querySelectorAll('.searchable')];
+search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();for(const item of items)item.classList.toggle('hidden',q&&!item.textContent.toLowerCase().includes(q))});
+</script></body></html>

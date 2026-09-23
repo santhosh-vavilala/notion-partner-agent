@@ -34,6 +34,8 @@ class ChatResponse(BaseModel):
     intent: Intent
     partner: str
     tool_calls: list[dict[str, Any]] = []
+    planned_tools: list[dict[str, Any]] = Field(default_factory=list)
+    tool_results: list[dict[str, Any]] = Field(default_factory=list)
     approval_required: bool = False
     trace_id: str
 
