@@ -102,6 +102,10 @@ Credentials are stored under `.secrets/`, which is gitignored. Do not commit the
 
 ```bash
 uvicorn app.main:app --reload
+
+or 
+
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8001
 ```
 
 Swagger: `http://localhost:8000/docs`
