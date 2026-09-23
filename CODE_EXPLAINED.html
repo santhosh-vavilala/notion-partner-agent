@@ -52,12 +52,12 @@ tests/                         # unit/API contract tests</pre>
 <article class="step"><h4>Classify</h4><p>A strict structured model call returns intent, partner, risk, objective, and whether Notion is needed.</p></article>
 <article class="step"><h4>Discover and plan</h4><p>Notion supplies its live catalog. The model chooses calls; code removes unknown names and applies the configured limit.</p></article>
 <article class="step"><h4>Govern</h4><p>Write-looking tools stop before execution unless the request explicitly carries approval.</p></article>
-<article class="step"><h4>Execute and ground</h4><p>Calls run sequentially, results are normalized, and a final model call explains only those results.</p></article>
+<article class="step"><h4>Execute, re-plan, and ground</h4><p>Calls run sequentially and results are normalized. The planner receives prior calls/results and may choose the next dependent step—such as access check → search → fetch—until it returns no calls or reaches the total call limit; then the final model call explains the accumulated results.</p></article>
 </div></section>
 
 <section id="scenarios"><h2>4. Three execution paths</h2><div class="grid three">
 <article class="card"><span class="badge">General</span><h3>“Hello”</h3><p><code>classify → general → END</code></p><p>No Notion connection is made.</p></article>
-<article class="card"><span class="badge green">Read</span><h3>“Find the policy”</h3><p><code>classify → discover → plan → gate → execute → synthesize</code></p></article>
+<article class="card"><span class="badge green">Read</span><h3>“Find the policy”</h3><p><code>classify → discover → (plan → gate → execute) × bounded rounds → synthesize</code></p></article>
 <article class="card"><span class="badge red">Write</span><h3>“Create a page”</h3><p>First run stops at approval. Approval resubmits with <code>approve_write:true</code>, so classification and planning happen again before execution.</p></article>
 </div></section>
 
@@ -147,7 +147,7 @@ tests/                         # unit/API contract tests</pre>
 <section id="limitations"><h2>10. Important limitations</h2><div class="grid">
 <article class="card"><span class="badge red">Security</span><h3>Single operator</h3><p><code>user_id</code> is metadata, not credential selection. Multi-user deployment needs authentication and encrypted per-user storage.</p></article>
 <article class="card"><span class="badge red">Policy</span><h3>Name heuristic</h3><p>Replace substrings with an allowlist carrying explicit risk, scopes, and argument policy.</p></article>
-<article class="card"><span class="badge amber">Planning</span><h3>Single round</h3><p>The prompt mentions search-first, but the graph never replans after search. Search→fetch needs a bounded loop.</p></article>
+<article class="card"><span class="badge amber">Planning</span><h3>Bounded re-planning</h3><p>Dependent actions now work across rounds, but all rounds share <code>max_mcp_tool_calls</code>. Complex tasks that need more steps stop at the cap and synthesize from partial results.</p></article>
 <article class="card"><span class="badge amber">Memory</span><h3>No chat history</h3><p>Checkpointed state exists, but model prompts receive only the current message. Add a message reducer and bounded history.</p></article>
 <article class="card"><span class="badge amber">Reliability</span><h3>Ambiguous retries</h3><p>A timeout may happen after a write commits. Add idempotency/reconciliation and durable audit records.</p></article>
 <article class="card"><span class="badge amber">Persistence</span><h3>In memory only</h3><p><code>DATABASE_URL</code> is unused. Replicas need database checkpoints.</p></article>

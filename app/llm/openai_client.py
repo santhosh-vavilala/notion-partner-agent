@@ -42,7 +42,9 @@ class LLMService:
         )
         return RouteDecision.model_validate_json(response.output_text)
 
-    async def select_tools(self, message: str, route: RouteDecision, tools: list[dict]) -> list[dict]:
+    async def select_tools(self, message: str, route: RouteDecision, tools: list[dict],
+                           previous_calls: list[dict] | None = None,
+                           previous_results: list[dict] | None = None) -> list[dict]:
         compact = [{"name":t["name"],"description":t.get("description",""),"inputSchema":t.get("inputSchema",{})} for t in tools]
         # Strict Structured Outputs cannot contain an open-ended object schema:
         # every object must set additionalProperties=false. MCP argument shapes
@@ -54,6 +56,11 @@ class LLMService:
             instructions=("Choose the minimum MCP tool calls needed. Only choose names from AVAILABLE_TOOLS. "
                           "Never choose a write tool for a read request. If a fetch needs an ID that search can discover, choose search first only; the graph can plan another round after results."),
             input=(f"USER_REQUEST:\n{message}\n\nROUTE:\n{route.model_dump_json()}\n\nAVAILABLE_TOOLS:\n{json.dumps(compact)}\n\n"
+                   f"PREVIOUS_TOOL_CALLS:\n{json.dumps(previous_calls or [], default=str)}\n\n"
+                   f"PREVIOUS_TOOL_RESULTS:\n{json.dumps(previous_results or [], default=str)[:50000]}\n\n"
+                   "Do not repeat a completed call. Use notion-get-tool-access results to choose an available tool; "
+                   "when ordinary search is available but AI search is not, use notion-search with supported parameters. "
+                   "Return an empty calls list when the available results are sufficient to answer. "
                    "For every call, put the tool arguments object in arguments_json as valid JSON text."),
             text={"format":{"type":"json_schema","name":"tool_plan","strict":True,"schema":schema}},
         )
