@@ -1,0 +1,43 @@
+from enum import Enum
+from typing import Any
+from pydantic import BaseModel, Field
+
+class Intent(str, Enum):
+    SEARCH_KNOWLEDGE = "search_knowledge"
+    READ_PAGE = "read_page"
+    CREATE_PAGE = "create_page"
+    UPDATE_PAGE = "update_page"
+    COMMENTS = "comments"
+    USERS = "users"
+    GENERAL = "general"
+
+class Risk(str, Enum):
+    READ = "read"
+    WRITE = "write"
+
+class RouteDecision(BaseModel):
+    intent: Intent
+    partner: str = "notion"
+    risk: Risk
+    objective: str
+    requires_mcp: bool
+
+class ChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=12000)
+    thread_id: str = Field(min_length=1, max_length=128)
+    user_id: str = Field(min_length=1, max_length=128)
+    approve_write: bool = False
+
+class ChatResponse(BaseModel):
+    answer: str
+    thread_id: str
+    intent: Intent
+    partner: str
+    tool_calls: list[dict[str, Any]] = []
+    approval_required: bool = False
+    trace_id: str
+
+class HealthResponse(BaseModel):
+    status: str
+    openai_configured: bool
+    notion_token_present: bool
