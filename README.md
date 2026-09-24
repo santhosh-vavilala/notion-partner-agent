@@ -1,6 +1,15 @@
-# Notion Partner Agent — OpenAI + LangGraph + Real MCP
+# Multi-Partner Agent — OpenAI + LangGraph + Hosted MCP
 
-A production-style reference application for the same architectural ideas as an enterprise **Partner Agent**: an AI assistant receives a request, an OpenAI model classifies intent, LangGraph controls the workflow, a partner router selects Notion, the app discovers tools from Notion's **real hosted MCP server**, invokes the selected MCP tool, and OpenAI synthesizes the result.
+A production-style enterprise **Partner Agent** reference: OpenAI classifies intent and selects Notion or Linear, LangGraph controls the workflow and approval gates, the selected partner's real hosted MCP server provides tools, and OpenAI synthesizes a grounded response.
+
+## Supported partners
+
+| Partner | MCP endpoint | Typical capabilities |
+|---|---|---|
+| Notion | `https://mcp.notion.com/mcp` | Search, read, create, and update workspace content |
+| Linear | `https://mcp.linear.app/mcp` | Search, read, create, and update issues and projects |
+
+One partner is selected per request. Partner definitions live in `app/mcp/partners.py`; adding another hosted Streamable HTTP/OAuth MCP server does not require duplicating the LangGraph workflow.
 
 ## Architecture
 
@@ -16,7 +25,7 @@ LangGraph Partner Agent
   +--> classify_intent (OpenAI Structured Output)
   |       intents: search/read/create/update/comments/users/general
   |
-  +--> route_partner (NOTION in this project)
+  +--> route_partner (NOTION or LINEAR)
   |
   +--> discover_tools (live MCP tools/list)
   |
@@ -27,10 +36,10 @@ LangGraph Partner Agent
   +--> execute_tool (MCP tools/call)
   |          |
   |          v
-  |    https://mcp.notion.com/mcp
+  |    selected hosted MCP server
   |          |
   |          v
-  |      Your Notion workspace
+  |      Your partner workspace
   |
   +--> synthesize_response (OpenAI grounded on MCP result)
   v
@@ -55,7 +64,7 @@ JSON response
 ## Real components — no dummy partner data
 
 - **OpenAI Responses API** is used for intent classification, tool planning, and final answer generation.
-- **Notion's hosted MCP** is used at `https://mcp.notion.com/mcp`.
+- **Notion and Linear hosted MCP servers** are used directly.
 - The app performs MCP `initialize`, `tools/list`, and `tools/call` through the official Python MCP SDK.
 - OAuth is handled by the MCP SDK using authorization-code + PKCE/discovery. Tokens and registered client information are persisted locally for the single-user reference deployment; refresh is automatic through `OAuthClientProvider`.
 - Write operations require explicit `approve_write=true` by default.
@@ -64,7 +73,7 @@ JSON response
 
 - Python 3.12+
 - An OpenAI API key with billing/credits
-- A Notion account/workspace
+- A Notion and/or Linear account/workspace
 
 ## 2. Install
 
@@ -88,13 +97,18 @@ OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-5
 ```
 
-## 3. Authorize the real Notion MCP
+## 3. Authorize partner MCP servers
 
 ```bash
 python -m scripts.notion_auth
+python -m scripts.linear_auth
+
+# Equivalent generic commands:
+python -m scripts.partner_auth notion
+python -m scripts.partner_auth linear
 ```
 
-The script prints an authorization URL. Open it, sign in to Notion, approve access, then paste the **full callback URL from the browser address bar** into the terminal. The localhost callback page itself does not need to render; the script only needs the authorization `code/state` in the redirected URL.
+Each script prints an authorization URL. Open it, sign in, approve access, then paste the **full callback URL from the browser address bar** into the terminal. The localhost callback page itself does not need to render; the script only needs the authorization `code/state` in the redirected URL.
 
 Credentials are stored under `.secrets/`, which is gitignored. Do not commit them.
 
@@ -179,9 +193,13 @@ app/models/schemas.py          request/response + intent DTOs
 app/agent/state.py             LangGraph state
 app/agent/graph.py             orchestration and safety gates
 app/llm/openai_client.py       OpenAI Responses API
-app/mcp/notion_client.py       real Notion MCP client
+app/mcp/notion_client.py       backward-compatible Notion client
+app/mcp/remote_client.py       reusable hosted MCP client
+app/mcp/partners.py            partner definitions and registry
 app/mcp/oauth_storage.py       OAuth token/client persistence
-scripts/notion_auth.py         interactive OAuth bootstrap
+scripts/notion_auth.py         Notion OAuth bootstrap
+scripts/linear_auth.py         Linear OAuth bootstrap
+scripts/partner_auth.py        generic partner OAuth bootstrap
 ```
 
 ## Production hardening notes

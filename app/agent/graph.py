@@ -5,11 +5,12 @@ from langgraph.checkpoint.memory import MemorySaver
 from app.agent.state import AgentState
 from app.core.config import get_settings
 from app.llm.openai_client import LLMService
-from app.mcp.notion_client import NotionMCPClient, is_write_tool
+from app.mcp.partners import build_partner_registry
+from app.mcp.remote_client import is_write_tool
 from app.models.schemas import Risk
 
 llm = LLMService()
-mcp = NotionMCPClient()
+partners = build_partner_registry()
 settings = get_settings()
 
 async def classify(state: AgentState):
@@ -22,7 +23,7 @@ async def general(state: AgentState):
     return {"answer": await llm.general_answer(state["message"])}
 
 async def discover_tools(state: AgentState):
-    return {"tools": await mcp.list_tools()}
+    return {"tools": await partners.get(state["route"].partner).list_tools()}
 
 async def plan_tools(state: AgentState):
     remaining = settings.max_mcp_tool_calls - len(state.get("tool_calls", []))
@@ -43,9 +44,10 @@ def after_plan(state: AgentState):
     return "approval_gate" if state.get("selected_tools") else "synthesize"
 
 async def approval_gate(state: AgentState):
-    writes=[c for c in state.get("selected_tools",[]) if is_write_tool(c["name"])]
+    writes = state["route"].risk == Risk.WRITE and bool(state.get("selected_tools"))
     if writes and settings.require_write_approval and not state.get("approve_write",False):
-        return {"approval_required":True, "answer":"This request would modify Notion. Re-submit with approve_write=true after reviewing the requested action(s)."}
+        partner = state["route"].partner.title()
+        return {"approval_required":True, "answer":f"This request would modify {partner}. Re-submit with approve_write=true after reviewing the requested action(s)."}
     return {"approval_required":False}
 
 def after_approval(state: AgentState):
@@ -53,6 +55,7 @@ def after_approval(state: AgentState):
 
 async def execute_tools(state: AgentState):
     results=list(state.get("tool_results",[])); calls=list(state.get("tool_calls",[]))
+    mcp = partners.get(state["route"].partner)
     for call in state.get("selected_tools",[]):
         # Defense in depth: route risk and actual tool name must agree.
         if state["route"].risk == Risk.READ and is_write_tool(call["name"]):

@@ -17,7 +17,7 @@ async def test_graph_replans_after_tool_access_before_search(monkeypatch):
     class FakeLLM:
         async def classify(self, _message):
             return RouteDecision(
-                intent=Intent.SEARCH_KNOWLEDGE, risk=Risk.READ,
+                intent=Intent.SEARCH, risk=Risk.READ,
                 objective="Find Partner Agent", requires_mcp=True,
             )
 
@@ -42,7 +42,8 @@ async def test_graph_replans_after_tool_access_before_search(monkeypatch):
             return {"tool": name, "isError": False, "content": [arguments]}
 
     monkeypatch.setattr(graph_module, "llm", FakeLLM())
-    monkeypatch.setattr(graph_module, "mcp", FakeMCP())
+    fake_mcp = FakeMCP()
+    monkeypatch.setattr(graph_module, "partners", SimpleNamespace(get=lambda name: fake_mcp))
     monkeypatch.setattr(graph_module, "settings", SimpleNamespace(
         max_mcp_tool_calls=4, require_write_approval=True,
     ))

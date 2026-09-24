@@ -14,6 +14,8 @@ def test_workspace_assets_and_public_status(monkeypatch, tmp_path):
         openai_api_key="private-test-key", openai_model="test-model",
         notion_mcp_token_file=str(tmp_path / "absent-token.json"),
         app_env="test", notion_mcp_url="https://mcp.notion.com/mcp",
+        linear_mcp_token_file=str(tmp_path / "linear-token.json"),
+        linear_mcp_url="https://mcp.linear.app/mcp",
         require_write_approval=True, max_mcp_tool_calls=4, mcp_timeout_seconds=45,
     ))
     with TestClient(app) as client:
@@ -25,7 +27,9 @@ def test_workspace_assets_and_public_status(monkeypatch, tmp_path):
         response = client.get("/v1/status")
         assert response.status_code == 200
         assert response.json()["openai_configured"] is True
-        assert response.json()["notion_token_present"] is False
+        partners = {partner["name"]: partner for partner in response.json()["partners"]}
+        assert partners["notion"]["token_present"] is False
+        assert partners["linear"]["token_present"] is False
         assert "private-test-key" not in response.text
         assert "openai_api_key" not in response.json()
 
@@ -39,7 +43,7 @@ async def test_response_exposes_review_and_execution_details(monkeypatch, approv
     async def invoke(state, config):
         assert state["approve_write"] is (not approval_required)
         return {
-            "route": SimpleNamespace(intent=Intent.CREATE_PAGE, partner="notion"),
+            "route": SimpleNamespace(intent=Intent.CREATE, partner="notion"),
             "answer": "Approval required" if approval_required else "Created",
             "selected_tools": proposed, "approval_required": approval_required,
             "tool_calls": [] if approval_required else proposed,

@@ -6,7 +6,9 @@ class FileTokenStorage:
     """Single-operator token store. Replace with encrypted DB/KMS storage for multi-user production."""
     def __init__(self, token_file: str):
         self.token_file=Path(token_file)
-        self.client_file=self.token_file.with_name("notion_mcp_client.json")
+        stem = self.token_file.stem
+        client_stem = stem.removesuffix("_token") + "_client"
+        self.client_file=self.token_file.with_name(client_stem + self.token_file.suffix)
     async def get_tokens(self):
         return OAuthToken.model_validate_json(self.token_file.read_text()) if self.token_file.exists() else None
     async def set_tokens(self,tokens):

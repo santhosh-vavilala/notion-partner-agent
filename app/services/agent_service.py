@@ -11,7 +11,7 @@ class AgentService:
         result=await graph.ainvoke(state, config={"configurable":{"thread_id":req.thread_id},"metadata":{"trace_id":trace_id,"user_id":req.user_id}})
         route=result.get("route")
         return ChatResponse(answer=result.get("answer","No response generated."),thread_id=req.thread_id,
-            intent=route.intent if route else Intent.GENERAL, partner=route.partner if route else "notion",
+            intent=route.intent if route else Intent.GENERAL, partner=route.partner if route else "none",
             tool_calls=result.get("tool_calls",[]),
             planned_tools=result.get("selected_tools",[]) if result.get("approval_required") else [],
             tool_results=result.get("tool_results",[]),

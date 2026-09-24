@@ -23,7 +23,7 @@ async def test_tool_plan_uses_strict_schema_and_decodes_arguments():
     service = LLMService()
     service._client = SimpleNamespace(responses=SimpleNamespace(create=create))
     route = RouteDecision(
-        intent=Intent.SEARCH_KNOWLEDGE,
+        intent=Intent.SEARCH,
         risk=Risk.READ,
         objective="Find Partner Agent architecture",
         requires_mcp=True,
@@ -51,7 +51,7 @@ async def test_tool_plan_drops_invalid_argument_json():
     service = LLMService()
     service._client = SimpleNamespace(responses=SimpleNamespace(create=create))
     route = RouteDecision(
-        intent=Intent.SEARCH_KNOWLEDGE,
+        intent=Intent.SEARCH,
         risk=Risk.READ,
         objective="Search",
         requires_mcp=True,

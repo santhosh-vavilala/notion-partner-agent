@@ -3,10 +3,10 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 class Intent(str, Enum):
-    SEARCH_KNOWLEDGE = "search_knowledge"
-    READ_PAGE = "read_page"
-    CREATE_PAGE = "create_page"
-    UPDATE_PAGE = "update_page"
+    SEARCH = "search"
+    READ = "read"
+    CREATE = "create"
+    UPDATE = "update"
     COMMENTS = "comments"
     USERS = "users"
     GENERAL = "general"
@@ -33,7 +33,7 @@ class ChatResponse(BaseModel):
     thread_id: str
     intent: Intent
     partner: str
-    tool_calls: list[dict[str, Any]] = []
+    tool_calls: list[dict[str, Any]] = Field(default_factory=list)
     planned_tools: list[dict[str, Any]] = Field(default_factory=list)
     tool_results: list[dict[str, Any]] = Field(default_factory=list)
     approval_required: bool = False
@@ -42,4 +42,4 @@ class ChatResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     openai_configured: bool
-    notion_token_present: bool
+    partners: list[dict[str, Any]] = Field(default_factory=list)

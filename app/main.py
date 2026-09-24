@@ -9,7 +9,7 @@ from app.core.config import get_settings
 s=get_settings()
 logging.basicConfig(level=s.log_level)
 structlog.configure(processors=[structlog.processors.TimeStamper(fmt="iso"),structlog.processors.JSONRenderer()])
-app=FastAPI(title="Notion Partner Agent",version="1.0.0",description="Production-style Partner Agent using OpenAI, LangGraph and Notion's real MCP server.")
+app=FastAPI(title="Multi-Partner Agent",version="2.0.0",description="Production-style Partner Agent using OpenAI, LangGraph, and hosted MCP servers.")
 app.include_router(router)
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")

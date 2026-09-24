@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-5"
     notion_mcp_url: str = "https://mcp.notion.com/mcp"
     notion_mcp_token_file: str = ".secrets/notion_mcp_token.json"
+    linear_mcp_url: str = "https://mcp.linear.app/mcp"
+    linear_mcp_token_file: str = ".secrets/linear_mcp_token.json"
     database_url: str | None = None
     log_level: str = "INFO"
     mcp_timeout_seconds: float = 45.0
