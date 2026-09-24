@@ -34,6 +34,11 @@ def test_workspace_assets_and_public_status(monkeypatch, tmp_path):
         assert "openai_api_key" not in response.json()
 
 
+def test_dependency_error_unwraps_task_group():
+    error = ExceptionGroup("task group failed", [RuntimeError("Notion authorization is required")])
+    assert routes.dependency_error_detail(error) == "RuntimeError: Notion authorization is required"
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("approval_required", [True, False])
 async def test_response_exposes_review_and_execution_details(monkeypatch, approval_required):
