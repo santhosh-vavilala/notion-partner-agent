@@ -4,7 +4,7 @@ from pathlib import Path
 from mcp.client.auth import OAuthClientProvider
 
 from app.core.config import Settings, get_settings
-from app.mcp.oauth_provider import NotionOAuthClientProvider
+from app.mcp.oauth_provider import SingleMethodOAuthClientProvider
 from app.mcp.remote_client import RemoteMCPClient
 
 
@@ -14,11 +14,29 @@ class PartnerDefinition:
     display_name: str
     server_url: str
     token_file: str
-    oauth_provider_cls: type[OAuthClientProvider] = OAuthClientProvider
+    oauth_provider_cls: type[OAuthClientProvider] = SingleMethodOAuthClientProvider
 
     @property
     def auth_command(self) -> str:
         return f"python -m scripts.partner_auth {self.name}"
+
+
+@dataclass(frozen=True)
+class PartnerSpec:
+    name: str
+    display_name: str
+    url_setting: str
+    token_setting: str
+    oauth_provider_cls: type[OAuthClientProvider] = SingleMethodOAuthClientProvider
+
+
+# Add future hosted OAuth MCP partners here and expose their two settings in Settings.
+PARTNER_SPECS = (
+    PartnerSpec("notion", "Notion", "notion_mcp_url", "notion_mcp_token_file"),
+    PartnerSpec("linear", "Linear", "linear_mcp_url", "linear_mcp_token_file"),
+)
+
+SUPPORTED_PARTNERS = tuple(spec.name for spec in PARTNER_SPECS)
 
 
 class PartnerRegistry:
@@ -68,21 +86,13 @@ def build_partner_registry(settings: Settings | None = None) -> PartnerRegistry:
     return PartnerRegistry(
         definitions=[
             PartnerDefinition(
-                name="notion",
-                display_name="Notion",
-                server_url=settings.notion_mcp_url,
-                token_file=settings.notion_mcp_token_file,
-                oauth_provider_cls=NotionOAuthClientProvider,
-            ),
-            PartnerDefinition(
-                name="linear",
-                display_name="Linear",
-                server_url=settings.linear_mcp_url,
-                token_file=settings.linear_mcp_token_file,
-            ),
+                name=spec.name,
+                display_name=spec.display_name,
+                server_url=getattr(settings, spec.url_setting),
+                token_file=getattr(settings, spec.token_setting),
+                oauth_provider_cls=spec.oauth_provider_cls,
+            )
+            for spec in PARTNER_SPECS
         ],
         timeout_seconds=settings.mcp_timeout_seconds,
     )
-
-
-SUPPORTED_PARTNERS = ("notion", "linear")
