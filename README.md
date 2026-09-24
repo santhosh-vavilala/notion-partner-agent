@@ -250,3 +250,6 @@ The included tests cover DTO defaults and write-tool detection. In a real CI pip
 ## Suggested Notion test content
 
 Create a few non-sensitive pages such as `Engineering Handbook`, `Partner Agent Architecture`, and `Laptop Policy`. Then test search, fetch, creation and updates. Do not connect this learning project to confidential company content.
+![alt text](image-1.png)
+
+![alt text](image.png)
