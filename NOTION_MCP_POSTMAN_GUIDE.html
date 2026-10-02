@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly, end-to-end guide to invoking Notion's hosted MCP server from Postman using OAuth 2.0, PKCE, Streamable HTTP, and JSON-RPC.">
+  <title>Notion MCP from Postman — Beginner's Complete Guide</title>
+  <style>
+    :root {
+      --bg:#f6f7fb; --paper:#fff; --ink:#172033; --muted:#5f6b7a; --line:#dfe4ec;
+      --nav:#101828; --blue:#315efb; --blue-soft:#edf2ff; --green:#067647; --green-soft:#ecfdf3;
+      --amber:#b54708; --amber-soft:#fffaeb; --red:#b42318; --red-soft:#fff1f0;
+      --purple:#6941c6; --purple-soft:#f4f3ff; --code:#111827; --radius:16px;
+      --shadow:0 14px 38px rgba(16,24,40,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:22px}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.68 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    .layout{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:100vh}
+    aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--nav);color:#fff;padding:25px 20px}
+    .brand{display:flex;align-items:center;gap:11px;margin-bottom:19px}.logo{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#fff;color:#101828;font-weight:900}.brand b,.brand small{display:block}.brand small{color:#98a2b3;font-size:10px;letter-spacing:.1em}
+    .side-note{padding:11px;border:1px solid #344054;border-radius:10px;color:#b8c0cc;font-size:12px;margin-bottom:17px}
+    .side-title{margin:20px 8px 6px;color:#667085;font-size:10px;font-weight:800;letter-spacing:.12em}
+    aside a{display:block;padding:6px 8px;color:#d0d5dd;text-decoration:none;border-radius:7px;font-size:13px}aside a:hover,aside a:focus{background:#1d2939;color:#fff}
+    main{min-width:0;padding:48px clamp(20px,5vw,76px) 90px}.content{max-width:1080px;margin:auto}
+    .hero{padding:clamp(27px,5vw,52px);border-radius:24px;color:#fff;background:radial-gradient(circle at 95% 0,#5d7eff 0,transparent 38%),linear-gradient(135deg,#101828,#253d77);box-shadow:var(--shadow)}
+    .hero h1{font-size:clamp(35px,5.4vw,61px);line-height:1.03;letter-spacing:-.047em;margin:10px 0 18px}.hero p{max-width:820px;color:#d0d5dd;font-size:18px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;color:#b9c7ff;text-transform:uppercase}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.chip{padding:5px 10px;border:1px solid #53617a;border-radius:99px;font-size:12px;color:#eef2ff}
+    section{margin-top:58px}h2{font-size:31px;line-height:1.2;letter-spacing:-.025em;margin:0 0 10px}h3{font-size:21px;line-height:1.3;margin:29px 0 9px}h4{font-size:16px;margin:0 0 5px}p{margin:7px 0 14px}.lead{max-width:900px;color:#475467;font-size:17px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card,.callout,.step,.diagram,.table-wrap,details{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}.card{padding:22px}.card p{color:#475467}.card .num{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--blue-soft);color:var(--blue);font-weight:900;margin-bottom:11px}
+    .callout{padding:18px 20px;border-left:5px solid var(--blue);margin:18px 0}.callout strong{display:block}.callout.warn{border-left-color:#f79009;background:var(--amber-soft)}.callout.danger{border-left-color:#d92d20;background:var(--red-soft)}.callout.good{border-left-color:#12b76a;background:var(--green-soft)}
+    .badge{display:inline-block;padding:3px 8px;border-radius:99px;background:var(--blue-soft);color:var(--blue);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.055em}.badge.green{background:var(--green-soft);color:var(--green)}.badge.amber{background:var(--amber-soft);color:var(--amber)}.badge.purple{background:var(--purple-soft);color:var(--purple)}
+    code{font:13px ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef1f5;color:#344054;border-radius:5px;padding:2px 5px}
+    .codebox{position:relative;margin:13px 0}.codebox pre{margin:0}.copy{position:absolute;right:9px;top:9px;border:1px solid #475467;border-radius:7px;background:#1f2937;color:#d0d5dd;padding:5px 9px;font-size:11px;cursor:pointer}.copy:hover{background:#344054;color:#fff}
+    pre{background:var(--code);color:#d7e5ff;border-radius:12px;padding:18px;overflow:auto;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}.comment{color:#7f8da3}.key{color:#9cdcfe}.string{color:#ce9178}
+    .step{display:grid;grid-template-columns:54px minmax(0,1fr);gap:14px;padding:22px;margin:15px 0}.step-no{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--blue);color:#fff;font-weight:900}.step h3{margin:2px 0 8px}
+    .why{margin:13px 0;padding:13px 15px;border-radius:10px;background:var(--blue-soft);color:#30446f}.why b{color:#214ecc}
+    .diagram{padding:21px;overflow:auto;margin:18px 0}.diagram-title{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#667085;margin-bottom:14px}.flow{display:grid;grid-template-columns:repeat(9,max-content);align-items:center;gap:9px;min-width:850px}.node{padding:12px 14px;border:1px solid #cfd7e6;border-radius:10px;background:#fff;text-align:center}.node b,.node small{display:block}.node small{color:#667085}.node.user{background:var(--green-soft);border-color:#8bd5af}.node.auth{background:var(--purple-soft);border-color:#cab8ef}.node.server{background:var(--blue-soft);border-color:#acbdff}.arrow{color:#98a2b3;font-size:21px;font-weight:800}
+    .identity{display:grid;grid-template-columns:1fr 55px 1fr 55px 1fr;align-items:center;min-width:760px}.identity .node{min-height:88px;display:grid;align-content:center}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#f9fafb;color:#475467;font-size:11px;letter-spacing:.045em;text-transform:uppercase}tr:last-child td{border-bottom:0}td:first-child{font-family:ui-monospace,Consolas,monospace;color:#344054}
+    .request{border-top:5px solid var(--blue)}.request h3{margin-top:2px}.request-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    dl.fields{display:grid;grid-template-columns:minmax(160px,240px) 1fr;gap:0;margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}dl.fields dt,dl.fields dd{padding:10px 13px;margin:0;border-bottom:1px solid var(--line)}dl.fields dt{font-family:ui-monospace,Consolas,monospace;background:#f9fafb;color:#344054}dl.fields dd{color:#475467}dl.fields dt:last-of-type,dl.fields dd:last-of-type{border-bottom:0}
+    details{margin:12px 0;padding:0 17px}summary{padding:14px 0;cursor:pointer;font-weight:750}details>div{padding:0 0 15px;color:#475467}
+    .checklist{list-style:none;padding:0}.checklist li{position:relative;padding:7px 0 7px 29px}.checklist li:before{content:'✓';position:absolute;left:0;top:7px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--green-soft);color:var(--green);font-weight:900}
+    .footer{margin-top:58px;padding-top:24px;border-top:1px solid var(--line);color:#667085}.footer a{color:var(--blue)}
+    @media(max-width:940px){.layout{display:block}aside{position:relative;height:auto}.grid.three{grid-template-columns:1fr 1fr}main{padding-top:26px}}
+    @media(max-width:650px){.grid,.grid.three{grid-template-columns:1fr}.step{grid-template-columns:1fr}.step-no{width:38px;height:38px}dl.fields{grid-template-columns:1fr}dl.fields dt,dl.fields dd{border-bottom:0}dl.fields dd{border-bottom:1px solid var(--line)}.hero{padding:28px 22px}}
+    @media print{aside{display:none}.layout{display:block}main{padding:0}.hero{color:#000;background:#fff;border:1px solid #bbb}.hero p,.eyebrow{color:#333}.step,.card,.callout{break-inside:avoid}.copy{display:none}}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand"><div class="logo">N</div><div><b>Notion MCP</b><small>POSTMAN FIELD GUIDE</small></div></div>
+    <div class="side-note">Beginner-first · Hosted Notion MCP · Streamable HTTP · OAuth 2.0 + PKCE</div>
+    <div class="side-title">FOUNDATIONS</div>
+    <a href="#outcome">1. What you will build</a><a href="#mental-model">2. Mental model</a><a href="#identity">3. How Notion knows you</a><a href="#auth-choice">4. OAuth vs other methods</a>
+    <div class="side-title">POSTMAN WALKTHROUGH</div>
+    <a href="#prerequisites">5. Prerequisites</a><a href="#environment">6. Environment variables</a><a href="#discovery">7. OAuth discovery</a><a href="#registration">8. Register Postman</a><a href="#authorization">9. Sign in and consent</a><a href="#initialize">10. Initialize MCP</a><a href="#tools">11. List and call tools</a><a href="#refresh">12. Refresh tokens</a>
+    <div class="side-title">REFERENCE</div>
+    <a href="#api-map">API call map</a><a href="#values">Important values</a><a href="#troubleshooting">Troubleshooting</a><a href="#security">Security</a><a href="#production">Postman vs production</a><a href="#glossary">Glossary</a>
+  </aside>
+
+  <main><div class="content">
+    <header class="hero" id="outcome">
+      <div class="eyebrow">Complete beginner's guide · verified against official Notion documentation</div>
+      <h1>Invoke Notion MCP from Postman</h1>
+      <p>Learn what every request does, why it exists, how OAuth identifies you as the Notion user Santhosh, and how a raw HTTP client moves from “not authenticated” to calling real Notion tools.</p>
+      <div class="chips"><span class="chip">No MCP experience required</span><span class="chip">OAuth 2.0</span><span class="chip">PKCE</span><span class="chip">JSON-RPC 2.0</span><span class="chip">Streamable HTTP</span></div>
+    </header>
+
+    <section id="mental-model">
+      <span class="badge">Start here</span><h2>The mental model</h2>
+      <p class="lead">Postman is pretending to be a small MCP client. It first gets permission from Notion, then starts the MCP protocol, discovers available tools, and finally invokes one of those tools.</p>
+      <div class="grid three">
+        <article class="card"><div class="num">1</div><h4>OAuth answers “who and may they enter?”</h4><p>You sign in on Notion's website. Notion records your consent and issues tokens tied to your user and workspace.</p></article>
+        <article class="card"><div class="num">2</div><h4>MCP answers “what can this server do?”</h4><p>The client initializes the protocol and asks the server for its live list of tools and their argument schemas.</p></article>
+        <article class="card"><div class="num">3</div><h4>A tool call performs the work</h4><p>The client sends a structured <code>tools/call</code> request such as search, fetch, create, or update.</p></article>
+      </div>
+      <div class="diagram"><div class="diagram-title">Complete journey</div><div class="flow">
+        <div class="node user"><b>You</b><small>Santhosh</small></div><div class="arrow">→</div><div class="node"><b>Postman</b><small>MCP client</small></div><div class="arrow">→</div><div class="node auth"><b>Notion OAuth</b><small>login + consent</small></div><div class="arrow">→</div><div class="node server"><b>Notion MCP</b><small>tools</small></div><div class="arrow">→</div><div class="node"><b>Workspace</b><small>allowed content</small></div>
+      </div></div>
+      <div class="callout"><strong>MCP is not the Notion REST API.</strong>MCP is a standard protocol designed for AI clients to discover and invoke tools. It uses JSON-RPC messages carried over HTTP. The server may internally use Notion services, but you interact with named MCP tools rather than hard-coded REST resources.</div>
+    </section>
+
+    <section id="identity">
+      <span class="badge green">Identity</span><h2>How does Notion know “I am Santhosh”?</h2>
+      <p class="lead">Your name is not placed in the JSON body. Notion learns your identity during the browser-based OAuth login, then links the resulting access token to your Notion user and the workspace you authorized.</p>
+      <div class="diagram"><div class="diagram-title">Identity chain</div><div class="identity">
+        <div class="node user"><b>Notion login session</b><small>Santhosh's account</small></div><div class="arrow">→</div><div class="node auth"><b>OAuth grant</b><small>user_id + workspace_id + consent</small></div><div class="arrow">→</div><div class="node server"><b>Bearer access token</b><small>opaque credential sent by Postman</small></div>
+      </div></div>
+      <div class="grid">
+        <article class="card"><h4><code>client_id</code> identifies the application</h4><p>It says “this request comes from the Postman client registration.” It does <em>not</em> mean Santhosh.</p></article>
+        <article class="card"><h4><code>access_token</code> represents the authorized connection</h4><p>Notion resolves it to the authorizing user, workspace, permissions, and consent. Treat it like a password.</p></article>
+      </div>
+      <div class="callout good"><strong>You never send your Notion password to Postman.</strong>You enter it only on Notion's own authorization page. Postman receives a temporary authorization code and exchanges that code for tokens.</div>
+      <p>A successful initial token exchange can include <code>user_id</code>, <code>workspace_id</code>, and <code>email_domain</code>. Those fields let an application associate the connection with the correct user and tenant. Refresh responses may omit these identity fields, so production applications store them from the initial exchange.</p>
+    </section>
+
+    <section id="auth-choice">
+      <span class="badge purple">Important distinction</span><h2>Why OAuth instead of Basic, API keys, or “Bearer”?</h2>
+      <div class="callout warn"><strong>OAuth and Bearer are not alternatives.</strong>OAuth is the authorization process used to obtain and renew an access token. <em>Bearer</em> describes how that access token is sent afterward: whoever bears the token can use it.</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Method</th><th>What is sent</th><th>Why it is or is not appropriate here</th></tr></thead>
+        <tbody>
+          <tr><td>OAuth 2.0 + PKCE</td><td>User signs in and consents; client receives short-lived access and refresh tokens.</td><td>Best fit for user-delegated access. Supports consent, revocation, workspace selection, expiring tokens, and separate identities for each user.</td></tr>
+          <tr><td>Bearer token</td><td><code>Authorization: Bearer &lt;access_token&gt;</code></td><td>This is how the OAuth access token is presented to MCP. It does not explain how the token was safely issued.</td></tr>
+          <tr><td>Basic authentication</td><td>Usually username and password encoded in an HTTP header.</td><td>Would expose a long-lived password to the client and cannot naturally express workspace consent or delegated access. Not supported by hosted Notion MCP.</td></tr>
+          <tr><td>API key / personal token</td><td>A manually created long-lived secret.</td><td>Useful for some server-to-server APIs, but hosted Notion MCP currently requires interactive OAuth. A normal Notion integration token is not a substitute.</td></tr>
+          <tr><td>Cookie</td><td>Browser session cookie.</td><td>Designed for browser sessions, vulnerable if copied, and not an MCP client credential. Never copy your Notion cookies into Postman.</td></tr>
+          <tr><td>mTLS / signed JWT</td><td>Machine certificate or signed machine assertion.</td><td>Useful in specialized enterprise machine-to-machine systems, but it does not provide the interactive user consent flow required by hosted Notion MCP.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Why PKCE?</h3>
+      <p>PKCE protects the temporary authorization code from interception. Postman creates a random secret called a <code>code_verifier</code>, hashes it into a <code>code_challenge</code>, and sends only the challenge during authorization. When exchanging the returned code, Postman must present the original verifier. A thief who steals only the code cannot redeem it without the verifier.</p>
+      <div class="codebox"><button class="copy">Copy</button><pre>code_verifier  = random secret kept by Postman
+code_challenge = BASE64URL(SHA256(code_verifier))
+
+Authorization request sends: code_challenge
+Token request later sends:    code_verifier</pre></div>
+    </section>
+
+    <section id="prerequisites">
+      <span class="badge">Preparation</span><h2>Before opening Postman</h2>
+      <ul class="checklist">
+        <li>You can sign in to the intended Notion account in a browser.</li>
+        <li>You know which Notion workspace you want to authorize.</li>
+        <li>Your workspace administrator allows the Postman/custom MCP client if MCP governance is enabled.</li>
+        <li>You have a current Postman desktop or web client capable of OAuth 2.0 Authorization Code with PKCE.</li>
+        <li>You will use a non-sensitive test page before trying create or update operations.</li>
+      </ul>
+      <div class="callout danger"><strong>Do not paste real tokens into screenshots, source control, chat, or shared Postman collections.</strong>Store secrets only in a private/local Postman environment. A bearer token is usable by anyone who obtains it.</div>
+    </section>
+
+    <section id="environment">
+      <span class="badge">Postman setup</span><h2>Create a private environment</h2>
+      <p>Create a Postman environment named <strong>Notion MCP Local</strong>. Add these variables. Keep secret values local/private rather than shared.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Variable</th><th>Initial value</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>mcp_url</td><td><code>https://mcp.notion.com/mcp</code></td><td>Hosted Notion Streamable HTTP endpoint.</td></tr>
+          <tr><td>oauth_authorize_url</td><td><code>https://mcp.notion.com/authorize</code></td><td>Browser login and consent endpoint.</td></tr>
+          <tr><td>oauth_token_url</td><td><code>https://mcp.notion.com/token</code></td><td>Exchanges codes or refresh tokens for access tokens.</td></tr>
+          <tr><td>oauth_register_url</td><td><code>https://mcp.notion.com/register</code></td><td>Dynamic Client Registration endpoint.</td></tr>
+          <tr><td>redirect_uri</td><td><code>https://oauth.pstmn.io/v1/browser-callback</code></td><td>Postman's current browser callback URL. If Postman displays a generated callback URL, use that exact displayed value instead.</td></tr>
+          <tr><td>client_id</td><td>empty</td><td>Filled from registration response; identifies this client.</td></tr>
+          <tr><td>access_token</td><td>empty/private</td><td>Credential used on MCP requests.</td></tr>
+          <tr><td>refresh_token</td><td>empty/private</td><td>Gets a new access token without another consent screen.</td></tr>
+          <tr><td>mcp_protocol_version</td><td><code>2025-11-25</code></td><td>Protocol revision used after negotiation.</td></tr>
+          <tr><td>mcp_session_id</td><td>empty</td><td>Optional value returned by initialize and echoed later.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="discovery">
+      <span class="badge">Optional but educational</span><h2>Step 1 — Discover OAuth configuration</h2>
+      <p>Real MCP SDKs do not have to hard-code OAuth endpoints. They discover which authorization server protects the MCP resource and then download its metadata. In Postman, these two read-only requests help you understand the process.</p>
+
+      <article class="step request"><div class="step-no">1A</div><div><div class="request-meta"><span class="badge green">GET</span><span class="badge">No authentication</span></div><h3>Protected-resource metadata</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>GET https://mcp.notion.com/mcp/.well-known/oauth-protected-resource</pre></div>
+        <div class="why"><b>Why:</b> This tells the client which OAuth authorization server protects the MCP endpoint. Do not assume authentication always lives on the same hostname as the resource.</div>
+      </div></article>
+
+      <article class="step request"><div class="step-no">1B</div><div><div class="request-meta"><span class="badge green">GET</span><span class="badge">No authentication</span></div><h3>Authorization-server metadata</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>GET https://mcp.notion.com/.well-known/oauth-authorization-server</pre></div>
+        <p>The response advertises values such as:</p>
+        <div class="codebox"><button class="copy">Copy</button><pre>{
+  "issuer": "https://mcp.notion.com",
+  "authorization_endpoint": "https://mcp.notion.com/authorize",
+  "token_endpoint": "https://mcp.notion.com/token",
+  "registration_endpoint": "https://mcp.notion.com/register",
+  "scopes_supported": ["default"],
+  "code_challenge_methods_supported": ["plain", "S256"]
+}</pre></div>
+        <div class="why"><b>Why:</b> Metadata prevents endpoint guessing, advertises supported grants and PKCE methods, and lets clients adapt if configuration changes.</div>
+      </div></article>
+    </section>
+
+    <section id="registration">
+      <span class="badge">OAuth setup</span><h2>Step 2 — Register Postman as a client</h2>
+      <p>Notion supports Dynamic Client Registration (DCR). The registration describes the client and locks in the exact redirect URI. Registration identifies the software; it does not authorize Santhosh yet.</p>
+      <article class="step request"><div class="step-no">2</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">JSON</span><span class="badge">No user token</span></div><h3>Register the OAuth client</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>POST {{oauth_register_url}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "client_name": "Postman Notion MCP - Santhosh",
+  "client_uri": "https://www.postman.com/",
+  "redirect_uris": ["{{redirect_uri}}"],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "scope": "default"
+}</pre></div>
+        <dl class="fields">
+          <dt>client_name</dt><dd>A human-readable application label shown in connection/admin screens. It is not your user identity.</dd>
+          <dt>client_uri</dt><dd>Information URL for the client. It helps users/admins understand what is connecting.</dd>
+          <dt>redirect_uris</dt><dd>Exact allowlist of callback URLs. OAuth rejects mismatches to stop an attacker redirecting the authorization code elsewhere.</dd>
+          <dt>grant_types</dt><dd><code>authorization_code</code> permits initial login; <code>refresh_token</code> permits renewal.</dd>
+          <dt>response_types</dt><dd><code>code</code> requests a temporary one-time code, not a token placed in the browser URL.</dd>
+          <dt>token_endpoint_auth_method</dt><dd><code>none</code> means this public client relies on PKCE instead of a client secret it could not safely protect.</dd>
+          <dt>scope</dt><dd><code>default</code> is the scope currently advertised by Notion's MCP authorization server.</dd>
+        </dl>
+        <p>Copy the returned <code>client_id</code> into the Postman environment. If the response also contains a <code>client_secret</code>, keep it private and follow the returned authentication method; do not invent a secret.</p>
+        <div class="callout warn"><strong>Do not register on every normal API call.</strong>Register once and reuse the client registration. Re-register only when the client metadata or redirect URI must change, or when the registration is lost/revoked.</div>
+      </div></article>
+    </section>
+
+    <section id="authorization">
+      <span class="badge purple">User interaction</span><h2>Step 3 — Sign in, consent, and obtain tokens</h2>
+      <p>In Postman, open any request and select <strong>Authorization → OAuth 2.0 → Configure New Token</strong>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Postman field</th><th>Value</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td>Grant Type</td><td>Authorization Code (With PKCE)</td><td>Uses browser consent and protects the returned code.</td></tr>
+          <tr><td>Callback URL</td><td><code>{{redirect_uri}}</code></td><td>Must exactly match the URI registered in Step 2.</td></tr>
+          <tr><td>Auth URL</td><td><code>{{oauth_authorize_url}}</code></td><td>Where Postman opens the Notion login/consent page.</td></tr>
+          <tr><td>Access Token URL</td><td><code>{{oauth_token_url}}</code></td><td>Where Postman exchanges the one-time code.</td></tr>
+          <tr><td>Client ID</td><td><code>{{client_id}}</code></td><td>Identifies the registered Postman client.</td></tr>
+          <tr><td>Client Secret</td><td>Empty unless registration returned one</td><td>A public PKCE client normally uses no embedded secret.</td></tr>
+          <tr><td>Scope</td><td><code>default</code></td><td>Requests the scope advertised by Notion.</td></tr>
+          <tr><td>State</td><td>Random value / Postman-generated</td><td>Binds the callback to the authorization attempt and prevents login CSRF.</td></tr>
+          <tr><td>Code Challenge Method</td><td>SHA-256 / S256</td><td>Securely binds the token exchange to the initiating Postman instance.</td></tr>
+          <tr><td>Client Authentication</td><td>Send client credentials in body</td><td>Sends the client identifier to the token endpoint without Basic authentication duplication.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="step"><div class="step-no">3</div><div><h3>Click “Get New Access Token”</h3>
+        <ol>
+          <li>Postman generates <code>state</code>, <code>code_verifier</code>, and <code>code_challenge</code>.</li>
+          <li>A browser opens <code>/authorize</code>.</li>
+          <li>Sign in to Notion as Santhosh. If the wrong account appears, switch accounts before consenting.</li>
+          <li>Select/confirm the intended workspace and approve access.</li>
+          <li>Notion redirects to Postman's callback with a short-lived <code>code</code> and the original <code>state</code>.</li>
+          <li>Postman validates <code>state</code>, then sends the code plus <code>code_verifier</code> to <code>/token</code>.</li>
+          <li>Notion returns an access token, usually a refresh token, expiry details, and initial identity fields.</li>
+          <li>Click <strong>Use Token</strong>.</li>
+        </ol>
+      </div></div>
+      <div class="callout good"><strong>This is the moment Notion learns you are Santhosh.</strong>The browser login identifies your Notion account; the consent records the chosen workspace; the resulting token represents that authorized connection.</div>
+      <h3>What the token request conceptually contains</h3>
+      <div class="codebox"><button class="copy">Copy</button><pre>POST https://mcp.notion.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&amp;code=&lt;one-time-code&gt;
+&amp;client_id=&lt;registered-client-id&gt;
+&amp;redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fbrowser-callback
+&amp;code_verifier=&lt;secret-created-by-postman&gt;</pre></div>
+      <p>The authorization code is intentionally short-lived and single-use. The access token should never appear in the browser address bar.</p>
+    </section>
+
+    <section id="initialize">
+      <span class="badge">MCP lifecycle</span><h2>Step 4 — Initialize the MCP protocol</h2>
+      <p>Authentication is now complete, but the MCP conversation has not started. The <code>initialize</code> request negotiates a protocol revision and announces basic client capabilities.</p>
+      <article class="step request"><div class="step-no">4A</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">JSON-RPC 2.0</span><span class="badge purple">Bearer token</span></div><h3>Send <code>initialize</code></h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>POST {{mcp_url}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+Accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "postman-notion-mcp-guide",
+      "version": "1.0.0"
+    }
+  }
+}</pre></div>
+        <dl class="fields">
+          <dt>Authorization</dt><dd>The OAuth bearer token proves the request belongs to the authorized connection.</dd>
+          <dt>Accept</dt><dd>MCP Streamable HTTP may reply as regular JSON or as a Server-Sent Events stream; advertise both.</dd>
+          <dt>jsonrpc</dt><dd>Declares the JSON-RPC 2.0 message format.</dd>
+          <dt>id</dt><dd>Correlates a response with this request. Reuse is confusing; increment it for each request.</dd>
+          <dt>method</dt><dd>The MCP operation. <code>initialize</code> must happen before ordinary tools in the handshake-era protocol.</dd>
+          <dt>protocolVersion</dt><dd>The newest handshake-era revision this manual client proposes. Accept the server-returned version and use it later.</dd>
+          <dt>capabilities</dt><dd>Features the client offers to the server. Empty is appropriate for this basic Postman exercise.</dd>
+          <dt>clientInfo</dt><dd>Diagnostic software name/version—not the human user identity.</dd>
+        </dl>
+        <div class="callout warn"><strong>If Notion returns a different protocol version, that is negotiation.</strong>Set <code>{{mcp_protocol_version}}</code> to the value in <code>result.protocolVersion</code>. If your environment rejects <code>2025-11-25</code>, retry with <code>2025-06-18</code>; an MCP SDK normally handles this automatically.</div>
+        <p>Also inspect the response headers. If present, save <code>Mcp-Session-Id</code> into <code>{{mcp_session_id}}</code>. Notion describes this value as opaque: do not decode it or attach business meaning to it.</p>
+      </div></article>
+
+      <article class="step request"><div class="step-no">4B</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">Notification</span></div><h3>Send <code>notifications/initialized</code></h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>POST {{mcp_url}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+Accept: application/json, text/event-stream
+MCP-Protocol-Version: {{mcp_protocol_version}}
+Mcp-Session-Id: {{mcp_session_id}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized"
+}</pre></div>
+        <div class="why"><b>Why:</b> The client acknowledges that it received the initialize result and is ready. A notification has no <code>id</code>, so the server does not owe it a JSON-RPC result. An empty body or HTTP <code>202</code> is normal.</div>
+        <p>If no session header was returned, omit <code>Mcp-Session-Id</code> rather than sending an empty value.</p>
+      </div></article>
+
+      <h3>Optional Postman test script to capture values</h3>
+      <p>Add this to the initialize request's <strong>Tests / Post-response</strong> tab:</p>
+      <div class="codebox"><button class="copy">Copy</button><pre>const sessionId = pm.response.headers.get("Mcp-Session-Id");
+if (sessionId) pm.environment.set("mcp_session_id", sessionId);
+
+let raw = pm.response.text().trim();
+if (raw.startsWith("event:") || raw.includes("\ndata:")) {
+  const dataLine = raw.split(/\r?\n/).find(line =&gt; line.startsWith("data:"));
+  if (dataLine) raw = dataLine.slice(5).trim();
+}
+
+try {
+  const message = JSON.parse(raw);
+  const version = message?.result?.protocolVersion;
+  if (version) pm.environment.set("mcp_protocol_version", version);
+} catch (error) {
+  console.warn("Could not parse initialize response", error);
+}</pre></div>
+    </section>
+
+    <section id="tools">
+      <span class="badge green">Useful work</span><h2>Step 5 — Discover and call Notion tools</h2>
+      <article class="step request"><div class="step-no">5A</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">Read-only discovery</span></div><h3>List tools</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}</pre></div>
+        <div class="why"><b>Why:</b> Tool availability and input schemas can change by server version, workspace, permission, and plan. A real MCP client discovers the live contract instead of hard-coding assumptions.</div>
+        <p>Each returned tool includes a <code>name</code>, description, and <code>inputSchema</code>. The input schema is the authoritative description of required and optional arguments.</p>
+      </div></article>
+
+      <article class="step request"><div class="step-no">5B</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">Tool call</span></div><h3>Check tool access</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "notion-get-tool-access",
+    "arguments": {}
+  }
+}</pre></div>
+        <div class="why"><b>Why:</b> Notion recommends checking this map before conditionally available tools. It explains whether capabilities are available, restricted, or require another plan/configuration.</div>
+      </div></article>
+
+      <article class="step request"><div class="step-no">5C</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge green">Read operation</span></div><h3>Search Notion</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "notion-search",
+    "arguments": {
+      "query": "Partner Agent architecture"
+    }
+  }
+}</pre></div>
+        <p>If <code>notion-search</code> is not listed, use the search tool actually returned by <code>tools/list</code>—for example, your connection may expose <code>notion-ai-search</code>. Match its exact <code>inputSchema</code>.</p>
+      </div></article>
+
+      <article class="step request"><div class="step-no">5D</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge purple">Generic template</span></div><h3>Call any discovered tool</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "&lt;exact name from tools/list&gt;",
+    "arguments": {
+      "&lt;field from inputSchema&gt;": "&lt;value&gt;"
+    }
+  }
+}</pre></div>
+        <div class="callout danger"><strong>Pause before write tools.</strong>Create, update, move, comment, and similar operations can change real workspace data. Read the tool description and schema, test in a sandbox page, and require human confirmation in production systems.</div>
+      </div></article>
+
+      <h3>Headers for requests after initialization</h3>
+      <div class="codebox"><button class="copy">Copy</button><pre>Authorization: Bearer {{access_token}}
+Content-Type: application/json
+Accept: application/json, text/event-stream
+MCP-Protocol-Version: {{mcp_protocol_version}}
+Mcp-Session-Id: {{mcp_session_id}}   # only if initialize returned one</pre></div>
+      <h3>Understanding tool results</h3>
+      <p>A successful HTTP response can still contain a tool-level error. Inspect both the JSON-RPC <code>error</code> field and the tool result's <code>isError</code>. Tool content is commonly an array of typed blocks such as text. Do not equate HTTP 200 with “the Notion operation succeeded.”</p>
+    </section>
+
+    <section id="refresh">
+      <span class="badge purple">Token lifecycle</span><h2>Step 6 — Refresh an expired access token</h2>
+      <p>Access tokens expire to reduce the harm caused by accidental leakage. A refresh token lets the authorized client obtain a replacement without asking Santhosh to approve the connection every hour.</p>
+      <article class="step request"><div class="step-no">6</div><div><div class="request-meta"><span class="badge amber">POST</span><span class="badge">Form URL encoded</span></div><h3>Refresh</h3>
+        <div class="codebox"><button class="copy">Copy</button><pre>POST {{oauth_token_url}}
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+grant_type=refresh_token
+&amp;refresh_token={{refresh_token}}
+&amp;client_id={{client_id}}</pre></div>
+        <div class="why"><b>Why:</b> Short-lived access tokens limit exposure; refresh tokens preserve usability. If Notion rotates the refresh token, replace the stored old value with the new one atomically.</div>
+        <p>If refresh returns <code>invalid_grant</code>, the grant may be expired, revoked, already rotated, or associated with another client. Repeat interactive authorization rather than endlessly retrying.</p>
+      </div></article>
+    </section>
+
+    <section id="api-map">
+      <span class="badge">Reference</span><h2>What every API call does</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Call</th><th>Protocol</th><th>Authentication</th><th>Purpose</th><th>Frequency</th></tr></thead>
+        <tbody>
+          <tr><td>GET protected-resource metadata</td><td>OAuth discovery</td><td>None</td><td>Find the authorization server protecting MCP.</td><td>Cacheable; SDK-managed</td></tr>
+          <tr><td>GET authorization-server metadata</td><td>OAuth discovery</td><td>None</td><td>Find authorize, token, registration endpoints and supported features.</td><td>Cacheable; SDK-managed</td></tr>
+          <tr><td>POST /register</td><td>OAuth DCR</td><td>Usually none</td><td>Create a client identity and register redirect URIs.</td><td>Normally once per client installation</td></tr>
+          <tr><td>GET /authorize</td><td>OAuth authorization</td><td>Notion browser login</td><td>Identify the human, choose workspace, collect consent, issue one-time code.</td><td>Initial authorization or reauthorization</td></tr>
+          <tr><td>POST /token (code)</td><td>OAuth token exchange</td><td>Code + PKCE verifier</td><td>Exchange one-time code for access/refresh tokens.</td><td>After each authorization</td></tr>
+          <tr><td>POST /token (refresh)</td><td>OAuth refresh</td><td>Refresh token + client identity</td><td>Obtain a new access token.</td><td>When access token expires</td></tr>
+          <tr><td>initialize</td><td>MCP JSON-RPC</td><td>Bearer access token</td><td>Negotiate MCP version and capabilities.</td><td>At the start of a handshake-era connection</td></tr>
+          <tr><td>notifications/initialized</td><td>MCP JSON-RPC</td><td>Bearer access token</td><td>Acknowledge initialization.</td><td>Once after initialize</td></tr>
+          <tr><td>tools/list</td><td>MCP JSON-RPC</td><td>Bearer access token</td><td>Discover live tools and argument schemas.</td><td>At startup and when tool list changes</td></tr>
+          <tr><td>tools/call</td><td>MCP JSON-RPC</td><td>Bearer access token</td><td>Invoke one specific tool with validated arguments.</td><td>Whenever work is needed</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="values">
+      <span class="badge">Deep reference</span><h2>Important values and what they protect</h2>
+      <div class="grid">
+        <article class="card"><h4><code>state</code></h4><p>Prevents login CSRF and callback mix-ups. The returned value must exactly match the value stored before redirect.</p></article>
+        <article class="card"><h4><code>code</code></h4><p>Short-lived, single-use authorization code. It is safe to pass through the browser only because redeeming it also requires PKCE.</p></article>
+        <article class="card"><h4><code>code_verifier</code></h4><p>Random PKCE secret kept by the client until token exchange. Never place it in the authorization URL.</p></article>
+        <article class="card"><h4><code>redirect_uri</code></h4><p>Exact approved callback destination. It appears at registration, authorization, and token exchange and must match.</p></article>
+        <article class="card"><h4><code>client_id</code></h4><p>Public application identifier. It is not a password and does not identify the human user.</p></article>
+        <article class="card"><h4><code>access_token</code></h4><p>Short-lived bearer credential sent to MCP. Whoever possesses it may exercise its authorization.</p></article>
+        <article class="card"><h4><code>refresh_token</code></h4><p>Longer-lived, highly sensitive credential used only at the token endpoint. Never send it to the MCP endpoint.</p></article>
+        <article class="card"><h4><code>MCP-Protocol-Version</code></h4><p>Tells the server which MCP wire contract applies to later requests after version negotiation.</p></article>
+        <article class="card"><h4><code>Mcp-Session-Id</code></h4><p>Opaque correlation value returned by initialize on some servers. Echo it when supplied; do not parse it.</p></article>
+        <article class="card"><h4>JSON-RPC <code>id</code></h4><p>Matches a response to a request. It is not a user ID, session ID, or security credential.</p></article>
+      </div>
+    </section>
+
+    <section id="troubleshooting">
+      <span class="badge amber">Fix problems</span><h2>Troubleshooting</h2>
+      <details open><summary>401 Unauthorized</summary><div>The access token is missing, expired, malformed, revoked, or intended for a different resource. Confirm the header begins exactly with <code>Bearer </code>. Refresh or repeat OAuth authorization. Do not use a normal Notion REST integration token.</div></details>
+      <details><summary>403 Forbidden</summary><div>The token is recognized but the user/workspace lacks permission, the client is blocked by enterprise MCP governance, or a capability is unavailable. Verify Santhosh can access the page directly and ask the workspace admin whether Postman/custom MCP clients are approved.</div></details>
+      <details><summary>redirect_uri mismatch</summary><div>The callback must be byte-for-byte identical in registration, authorization, and token exchange. Check scheme, hostname, path, trailing slash, and URL encoding.</div></details>
+      <details><summary>invalid_grant</summary><div>The authorization code may be expired/reused, the PKCE verifier may not match, the redirect URI may differ, or a refresh token may be revoked/rotated. Start a fresh OAuth flow and avoid replaying old values.</div></details>
+      <details><summary>Unsupported protocol version</summary><div>Use the version returned by the server. For manual handshake testing, try <code>2025-11-25</code>, then <code>2025-06-18</code> if required. Production clients should use a current MCP SDK for automatic negotiation.</div></details>
+      <details><summary>Response looks like “event: message / data: ...”</summary><div>This is Server-Sent Events framing, not corrupted JSON. Read the JSON after <code>data:</code>. Keep both <code>application/json</code> and <code>text/event-stream</code> in the Accept header.</div></details>
+      <details><summary>Method not found or invalid arguments</summary><div>Run <code>tools/list</code> again. Copy the exact tool name and follow its returned <code>inputSchema</code>. Tool contracts should not be guessed from old examples.</div></details>
+      <details><summary>Search cannot find a page</summary><div>Confirm the authorizing Notion user can access it, the correct workspace was selected, and the active token belongs to that connection. Authentication cannot grant permissions that Santhosh does not already have.</div></details>
+      <details><summary>Postman sends the wrong account's token</summary><div>Delete or deselect the saved OAuth token, switch Notion accounts in the authorization browser, authorize again, and use separate Postman environments for separate people/workspaces.</div></details>
+    </section>
+
+    <section id="security">
+      <span class="badge green">Safety</span><h2>Security checklist</h2>
+      <ul class="checklist">
+        <li>Keep access tokens, refresh tokens, client secrets, and PKCE verifiers out of Git and shared collections.</li>
+        <li>Use HTTPS only; never disable TLS certificate verification for real credentials.</li>
+        <li>Use <code>S256</code> PKCE, validate <code>state</code>, and require exact redirect URI matching.</li>
+        <li>Store production tokens encrypted server-side, indexed by application user, partner, and workspace.</li>
+        <li>Do not log Authorization headers or complete token responses.</li>
+        <li>Separate read tools from write tools; ask for explicit confirmation before mutations.</li>
+        <li>Revoke the Notion connection immediately if a token or exported Postman environment leaks.</li>
+        <li>Do not let one employee's token become a shared company credential.</li>
+      </ul>
+    </section>
+
+    <section id="production">
+      <span class="badge purple">Next step</span><h2>Postman versus a production MCP client</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Concern</th><th>Postman learning setup</th><th>Production application</th></tr></thead>
+        <tbody>
+          <tr><td>OAuth discovery</td><td>Manual requests / hard-coded values</td><td>Automatic RFC discovery with validation and caching</td></tr>
+          <tr><td>PKCE and state</td><td>Postman generates them</td><td>Cryptographically random, short-lived, server-side storage</td></tr>
+          <tr><td>Token storage</td><td>Private local environment</td><td>Encrypted database or secrets manager, per user and workspace</td></tr>
+          <tr><td>Token refresh</td><td>Manual or Postman-managed</td><td>Automatic refresh with rotation-safe writes and reauthorization handling</td></tr>
+          <tr><td>MCP negotiation</td><td>Manual initialize and headers</td><td>Current official MCP SDK handles transport and negotiation</td></tr>
+          <tr><td>Tool safety</td><td>Human manually chooses requests</td><td>Allowlist, read/write classification, user confirmation, audit log, idempotency</td></tr>
+          <tr><td>Multi-user identity</td><td>One environment usually represents one user</td><td>Token selected by authenticated application user + tenant + workspace</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><strong>This repository already demonstrates the production direction.</strong>Its Python MCP SDK performs discovery, OAuth/PKCE, initialization, tool listing, tool calls, token persistence, and refresh. Postman is best used here to see the wire-level operations clearly.</div>
+    </section>
+
+    <section id="glossary">
+      <span class="badge">Glossary</span><h2>Terms in plain English</h2>
+      <div class="grid">
+        <article class="card"><h4>MCP</h4><p>A standard way for AI clients to discover and invoke tools or retrieve context from servers.</p></article>
+        <article class="card"><h4>JSON-RPC</h4><p>A message format with request IDs, method names, parameters, results, and errors.</p></article>
+        <article class="card"><h4>Streamable HTTP</h4><p>MCP's recommended remote HTTP transport, able to return JSON or an event stream.</p></article>
+        <article class="card"><h4>OAuth 2.0</h4><p>A delegated authorization framework: a user grants an application limited access without sharing their password.</p></article>
+        <article class="card"><h4>PKCE</h4><p>A proof that the client exchanging the code is the same client that started authorization.</p></article>
+        <article class="card"><h4>DCR</h4><p>Dynamic Client Registration: the client registers itself through an API and receives a client ID.</p></article>
+        <article class="card"><h4>Scope</h4><p>A label describing requested authorization. Notion MCP currently advertises <code>default</code>.</p></article>
+        <article class="card"><h4>Bearer credential</h4><p>A secret accepted based on possession. It must be protected in storage, transit, and logs.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <span class="badge green">Final checklist</span><h2>Your first successful run</h2>
+      <ol>
+        <li>Create a private Postman environment.</li>
+        <li>Read OAuth discovery metadata.</li>
+        <li>Register the Postman callback and save <code>client_id</code>.</li>
+        <li>Use Authorization Code with PKCE to sign in as Santhosh and authorize the intended workspace.</li>
+        <li>Send <code>initialize</code>; save the returned protocol version and optional session ID.</li>
+        <li>Send <code>notifications/initialized</code>.</li>
+        <li>Send <code>tools/list</code>.</li>
+        <li>Call <code>notion-get-tool-access</code>.</li>
+        <li>Call a read-only search tool using its live input schema.</li>
+        <li>Only after that, test writes on a disposable page with explicit confirmation.</li>
+      </ol>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Primary references:</strong> <a href="https://developers.notion.com/guides/mcp/get-started-with-mcp">Connect to Notion MCP</a> · <a href="https://developers.notion.com/guides/mcp/build-mcp-client">Build an MCP client for Notion</a> · <a href="https://modelcontextprotocol.io/specification">MCP specification</a>.</p>
+      <p>Guide created for the local <code>notion-partner-agent</code> project. Verify live tool names and schemas with <code>tools/list</code>; they are the authoritative contract for your connection.</p>
+    </footer>
+  </div></main>
+</div>
+<script>
+  document.querySelectorAll('.copy').forEach(button => {
+    button.addEventListener('click', async () => {
+      const text = button.nextElementSibling.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = button.textContent;
+        button.textContent = 'Copied';
+        setTimeout(() => button.textContent = original, 1200);
+      } catch (_) {
+        button.textContent = 'Select manually';
+      }
+    });
+  });
+</script>
+</body>
+</html>
